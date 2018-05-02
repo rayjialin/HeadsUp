@@ -8,14 +8,14 @@
 
 import UIKit
 
-class User: NSObject {
+class User: NSObject, MKAnnotation {
     
     let name: String
-    var coordinate: CLLocationCoordinate2D?
+    var coordinate: CLLocationCoordinate2D
     //let matchedUser: MatchUsers
     let isMatched: Bool
     
-    init(name: String, coordinate: CLLocationCoordinate2D?) {
+    init(name: String, coordinate: CLLocationCoordinate2D) {
         self.name = name;
         self.coordinate = coordinate;
         self.isMatched = false

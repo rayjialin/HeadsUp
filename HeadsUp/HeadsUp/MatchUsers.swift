@@ -19,6 +19,7 @@ class MatchUsers: NSObject {
     
     var user: User
     var userArray: [User]
+    var shortestDistance: CLLocationDistance?
 
     var user1 = User(name: "Brian", coordinate: CLLocationCoordinate2DMake(49.282000, -123.107234))
     var user2 = User(name: "Ray", coordinate: CLLocationCoordinate2DMake(49.278304, -123.111654))
@@ -29,30 +30,28 @@ class MatchUsers: NSObject {
     init(user: User) {
         self.user = user;
         self.userArray = [user2, user1, user3];
+        self.shortestDistance = self.user.coordinate.distance(from: userArray[0].coordinate)
     }
     
     func findClosestUser() -> User? {
-        var shortestDistance: CLLocationDistance?
-        
+        var matchedUser = self.userArray[0];
         
         for otherUser in self.userArray {
-            if let selfDistance = self.user.coordinate, let otherDistance = otherUser.coordinate{
-                
-                if (shortestDistance == nil) {
-                    shortestDistance = (selfDistance.distance(from: otherDistance))
-                    print("initial shortest distance: \(shortestDistance!)")
-                }
-           
-                if let unwrappedDistance = shortestDistance {
-                    if (unwrappedDistance >  (selfDistance.distance(from: otherDistance))) {
-                        shortestDistance = (selfDistance.distance(from: otherDistance))
-                        print(shortestDistance!)
-                    }
+            let selfDistance = self.user.coordinate
+            let otherDistance = otherUser.coordinate
+            
+            if let unwrappedDistance = self.shortestDistance {
+                if (unwrappedDistance >  (selfDistance.distance(from: otherDistance))) {
+                    self.shortestDistance = (selfDistance.distance(from: otherDistance))
+                    print(self.shortestDistance!)
+                    print("Matched user before: \(matchedUser)")
+                    matchedUser = otherUser
+                    print("Matched user after: \(matchedUser)")
                 }
             }
         }
-        return nil
-        
+        print("Matched user outside: \(matchedUser)")
+        return matchedUser
     }
 
 }
