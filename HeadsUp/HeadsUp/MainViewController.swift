@@ -31,17 +31,17 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
             print("made it")
             self.mainMapView.showsUserLocation = true
+            if let firstLocation = manager.location {
+                self.currentLocation = firstLocation
+            }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
-            //self.mainMapView.setRegion(region, animated: true)
+            self.mainMapView.setRegion(region, animated: true)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        if self.currentLocation == nil {
-//            self.currentLocation = locations.first
-//            self.mapView.showsUserLocation = true
-//        }
+
         print("here")
     }
     
