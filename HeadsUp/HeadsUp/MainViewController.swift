@@ -13,14 +13,13 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
 
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
-    var currentLocation: CLLocation? = CLLocation()
+    var currentLocation: CLLocation = CLLocation()
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
-        self.mainMapView.showsUserLocation = true
         
 //        let networkManager = NetworkManager()
 //        networkManager.fetchCafes(withUserLocation: (self.currentLocation?.coordinate)!, searchTerm: nil) { (cafes) in
@@ -31,7 +30,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
             print("made it")
-            
+            self.mainMapView.showsUserLocation = true
+            let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
+            let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
+            //self.mainMapView.setRegion(region, animated: true)
         }
     }
     
