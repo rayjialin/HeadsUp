@@ -14,6 +14,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
     var currentLocation: CLLocation = CLLocation()
+    let user: User = User(name: "Bob", coordinate: nil)
     
 
     override func viewDidLoad() {
@@ -33,11 +34,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
+                self.user.coordinate = self.currentLocation.coordinate
+                var matchedUsers = MatchUsers.init(user: self.user)
+                _ = matchedUsers.findClosestUser()
             }
+        }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
             self.mainMapView.setRegion(region, animated: true)
-        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
