@@ -36,8 +36,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                 let user: User = User(name: "Bob", coordinate: self.currentLocation.coordinate)
                 let matchedUsers = MatchUsers.init(user: user)
                 let user2: User = matchedUsers.findClosestUser()!
-                self.mainMapView.addAnnotation(user2)
-                self.mainMapView.showAnnotations([user2], animated: true)
+                let locateCafe = LocateCafe(currentUser: user, otherUser: user2)
+                let array: [MKAnnotation] = [user2, locateCafe]
+                self.mainMapView.addAnnotations(array)
+                self.mainMapView.showAnnotations(array, animated: true)
             }
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
