@@ -23,13 +23,11 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
-        self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
+        //self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
         
-        
-    
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -38,13 +36,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
-                let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
-                dataManager.locateCafe.fetchCafeData { (cafeAnnotation) in
-                    var annotationArray: [MKAnnotation] = dataManager.dataAnnotations()
-                    annotationArray.append(cafeAnnotation)
-                    self.mainMapView.addAnnotations(annotationArray)
-                    self.mainMapView.showAnnotations(annotationArray, animated: true)
-                }
+                self.placeAnnotations()
             }
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
@@ -55,6 +47,33 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 
         print("here")
+    }
+    
+    func placeAnnotations() -> Void {
+        let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
+        dataManager.locateCafe.fetchCafeData { (cafeAnnotation) in
+            var annotationArray: [MKAnnotation] = dataManager.dataAnnotations()
+            annotationArray.append(cafeAnnotation)
+            self.mainMapView.addAnnotations(annotationArray)
+            self.mainMapView.showAnnotations(annotationArray, animated: true)
+            
+            /*
+             * Enables all annotations to fit on the screen.
+             * code taken from https://gist.github.com/andrewgleave/915374
+             */
+            
+            var zoomRect: MKMapRect = MKMapRectNull
+            for annotation in self.mainMapView.annotations {
+                let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
+                let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
+                if (MKMapRectIsNull(zoomRect)) {
+                    zoomRect = pointRect
+                } else {
+                    zoomRect = MKMapRectUnion(zoomRect, pointRect)
+                }
+            }
+            self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
+        }
     }
     
     
