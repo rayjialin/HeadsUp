@@ -20,6 +20,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
     @IBOutlet var profileView: UIView!
+    @IBOutlet var waitingView: UIView!
+    @IBOutlet var startTalkingView: UIView!
+    @IBOutlet var talkingView: UIView!
+    @IBOutlet var timerView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,8 +31,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         self.locationManager.requestWhenInUseAuthorization()
         //self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
-        self.view.addSubview(self.searchingView)
-        ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        self.view.addSubview(self.profileView)
+        ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
         
     }
     
