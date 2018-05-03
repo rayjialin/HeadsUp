@@ -35,22 +35,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
             print("made it")
+            self.locationManager.startUpdatingLocation()
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
-                
-                self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
-                if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
-                    // Use it...
-                    self.user?.saveLocGeoFire(uuid: udid)
-                } else {
-                    let udid = UUID().uuidString
-                    UserDefaults.standard.set(udid, forKey: "MY_UUID")
-                }
-                self.placeAnnotations()
-//                self.dataManager?.saveLocGeoFire(coordinate: self.currentLocation.coordinate, key: "user-location")
-//                self.dataManager?.retrieveLocGeoFire()
             }
+            self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
@@ -58,8 +48,34 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-
         print("here")
+//        self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
+        if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
+            // Use it...
+            self.user?.saveLocGeoFire(uuid: udid)
+            self.user?.retrieveLocGeoFire(uuid: udid)
+        } else {
+            let udid = UUID().uuidString
+            UserDefaults.standard.set(udid, forKey: "MY_UUID")
+        }
+        
+        
+        // Use Geofire query with radius to find locations in the area.
+        let center = CLLocation(latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.latitude)
+        var circleQuery = user?.geoFire.query(at: center, withRadius: 0.1)
+        
+        // Query location by region
+        let span = MKCoordinateSpanMake(0.001, 0.001)
+        let region = MKCoordinateRegionMake(center.coordinate, span)
+        let regionQuery = user?.geoFire.query(with: region)
+        
+        var queryHandle = regionQuery?.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
+            print("Key '\(key)' entered the search area and is at location '\(location)'")
+        })
+        
+        
+        self.placeAnnotations()
+        
     }
     
     func placeAnnotations() -> Void {
