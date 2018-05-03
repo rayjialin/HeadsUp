@@ -20,11 +20,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
-        
-//        let networkManager = NetworkManager()
-//        networkManager.fetchCafes(withUserLocation: (self.currentLocation?.coordinate)!, searchTerm: nil) { (cafes) in
-//            print(cafes!)
-//        }
+    
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -33,14 +29,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
-                let user: User = User(name: "Bob", coordinate: self.currentLocation.coordinate)
-                let matchedUsers = MatchUsers.init(user: user)
-                let user2: User = matchedUsers.findClosestUser()!
-                let locateCafe = LocateCafe(currentUser: user, otherUser: user2)
-                locateCafe.fetchCafeData()
-                let array: [MKAnnotation] = [user2, locateCafe]
-                self.mainMapView.addAnnotations(array)
-                self.mainMapView.showAnnotations(array, animated: true)
+                let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
+                
+                self.mainMapView.addAnnotations(dataManager.dataAnnotations())
+                self.mainMapView.showAnnotations(dataManager.dataAnnotations(), animated: true)
             }
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)

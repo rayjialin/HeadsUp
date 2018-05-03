@@ -12,7 +12,6 @@ class User: NSObject, MKAnnotation {
     
     let name: String
     var coordinate: CLLocationCoordinate2D
-    //let matchedUser: MatchUsers
     let isMatched: Bool
     
     init(name: String, coordinate: CLLocationCoordinate2D) {

@@ -19,6 +19,7 @@
 		7AE64C48209A5AD900288B91 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C47209A5AD900288B91 /* User.swift */; };
 		7AE64C4A209A611600288B91 /* MatchUsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C49209A611600288B91 /* MatchUsers.swift */; };
 		7AE64C4C209A829200288B91 /* LocateCafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C4B209A829200288B91 /* LocateCafe.swift */; };
+		7AE64C4E209AA9A900288B91 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C4D209AA9A900288B91 /* DataManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 		7AE64C47209A5AD900288B91 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		7AE64C49209A611600288B91 /* MatchUsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchUsers.swift; sourceTree = "<group>"; };
 		7AE64C4B209A829200288B91 /* LocateCafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocateCafe.swift; sourceTree = "<group>"; };
+		7AE64C4D209AA9A900288B91 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		9D329356578399766FCEF2E9 /* Pods-HeadsUp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeadsUp.release.xcconfig"; path = "Pods/Target Support Files/Pods-HeadsUp/Pods-HeadsUp.release.xcconfig"; sourceTree = "<group>"; };
 		B68354E27191E1AA5D1FE75C /* Pods_HeadsUp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HeadsUp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6F7ED2B2EE2158F3814B75C /* Pods-HeadsUp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeadsUp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HeadsUp/Pods-HeadsUp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				7AE64C4B209A829200288B91 /* LocateCafe.swift */,
 				7AE64C44209A43C200288B91 /* NetworkManager.h */,
 				7AE64C45209A43C200288B91 /* NetworkManager.m */,
+				7AE64C4D209AA9A900288B91 /* DataManager.swift */,
 				7AE64C2B209A393000288B91 /* Main.storyboard */,
 				7AE64C2E209A393100288B91 /* Assets.xcassets */,
 				7AE64C30209A393100288B91 /* LaunchScreen.storyboard */,
@@ -290,6 +293,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7AE64C3E209A3F0000288B91 /* MainViewController.swift in Sources */,
+				7AE64C4E209AA9A900288B91 /* DataManager.swift in Sources */,
 				7AE64C4C209A829200288B91 /* LocateCafe.swift in Sources */,
 				7AE64C4A209A611600288B91 /* MatchUsers.swift in Sources */,
 				7AE64C48209A5AD900288B91 /* User.swift in Sources */,
