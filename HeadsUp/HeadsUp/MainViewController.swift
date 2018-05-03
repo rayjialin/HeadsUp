@@ -20,28 +20,28 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
-        
-//        let networkManager = NetworkManager()
-//        networkManager.fetchCafes(withUserLocation: (self.currentLocation?.coordinate)!, searchTerm: nil) { (cafes) in
-//            print(cafes!)
-//        }
+    
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
             print("made it")
             self.mainMapView.showsUserLocation = true
+            if let firstLocation = manager.location {
+                self.currentLocation = firstLocation
+                let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
+                
+                self.mainMapView.addAnnotations(dataManager.dataAnnotations())
+                self.mainMapView.showAnnotations(dataManager.dataAnnotations(), animated: true)
+            }
+        }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
-            //self.mainMapView.setRegion(region, animated: true)
-        }
+            self.mainMapView.setRegion(region, animated: true)
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        if self.currentLocation == nil {
-//            self.currentLocation = locations.first
-//            self.mapView.showsUserLocation = true
-//        }
+
         print("here")
     }
     
