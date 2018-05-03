@@ -25,6 +25,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.distanceFilter = 5;
         //self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
         self.view.addSubview(self.searchingView)
@@ -73,6 +74,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             print("Key '\(key)' entered the search area and is at location '\(location)'")
         })
         
+        regionQuery?.observeReady({
+            print("All initial data has been loaded and events have been fired!")
+        })
+        
         
         self.placeAnnotations()
         
@@ -81,30 +86,33 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     func placeAnnotations() -> Void {
         guard let user = self.user else {return}
         self.dataManager = DataManager(user: user)
+        guard let dataAnnotations = self.dataManager?.dataAnnotations() else { return }
+        var annotationArray: [MKAnnotation] = dataAnnotations
         self.dataManager?.locateCafe.fetchCafeData { (cafeAnnotation) in
-            guard let dataAnnotations = self.dataManager?.dataAnnotations() else { return }
-            var annotationArray: [MKAnnotation] = dataAnnotations
             annotationArray.append(cafeAnnotation)
-            self.mainMapView.addAnnotations(annotationArray)
-            self.mainMapView.showAnnotations(annotationArray, animated: true)
-            
-            /*
-             * Enables all annotations to fit on the screen.
-             * code taken from https://gist.github.com/andrewgleave/915374
-             */
-            
-            var zoomRect: MKMapRect = MKMapRectNull
-            for annotation in self.mainMapView.annotations {
-                let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
-                let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
-                if (MKMapRectIsNull(zoomRect)) {
-                    zoomRect = pointRect
-                } else {
-                    zoomRect = MKMapRectUnion(zoomRect, pointRect)
-                }
-            }
-            self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
         }
+        self.mainMapView.addAnnotations(annotationArray)
+        self.mainMapView.showAnnotations(annotationArray, animated: true)
+        
+        print("ODFKSODKSOFSDKSOFOSDKFOSDOS")
+        print(#line, self.mainMapView.annotations.count)
+        
+        /*
+         * Enables all annotations to fit on the screen.
+         * code taken from https://gist.github.com/andrewgleave/915374
+         */
+        
+        var zoomRect: MKMapRect = MKMapRectNull
+        for annotation in self.mainMapView.annotations {
+            let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
+            let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
+            if (MKMapRectIsNull(zoomRect)) {
+                zoomRect = pointRect
+            } else {
+                zoomRect = MKMapRectUnion(zoomRect, pointRect)
+            }
+        }
+        self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
     }
     
     
