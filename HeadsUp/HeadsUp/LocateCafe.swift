@@ -40,7 +40,8 @@ class LocateCafe: NSObject, MKAnnotation {
     let x = cos(lat2) * cos(dLon);
     let y = cos(lat2) * sin(dLon);
 
-    let lat3 = atan2( sin(lat1) + sin(lat2), sqrt((cos(lat1) + x) * ((cos(lat1) + x) + y * y) ));
+    let lat3 = atan2(sin(lat1) + sin(lat2),
+                    sqrt((cos(lat1) + x) * ((cos(lat1) + x) + y * y)));
     let lon3 = lon1 + atan2(y, cos(lat1) + x);
 
         var center = CLLocationCoordinate2D()
@@ -50,15 +51,22 @@ class LocateCafe: NSObject, MKAnnotation {
         return center
     }
 
-    func fetchCafeData(){
+    func fetchCafeData(completion: @escaping (_ completion: MKAnnotation) -> Void) {
+        let midPointLocation = findCenterPoint(_lo1: self.currentUser.coordinate, _loc2: self.otherUser.coordinate)
         let networkManager = NetworkManager()
-        networkManager.fetchCafes(withUserLocation: self._coordinate, radius: 100) { (cafes) in
+//        var cafeLocation = CLLocationCoordinate2D()
+        networkManager.fetchCafes(withUserLocation: midPointLocation, radius: 100) { (cafes) in
             
-            if let unwrappedCafe = cafes {
-                for cafe in unwrappedCafe as! [CafeModel] {
-                    print(cafe.coordinate)
+            if let unwrappedCafe = cafes as? [CafeModel] {
+                DispatchQueue.main.async {
+//                    cafeLocation = unwrappedCafe[0].coordinate
+                    completion(unwrappedCafe[0])
+                    //print("cafelocation inside \(cafeLocation)")
+                    
                 }
             }
         }
+        //print("cafelocation outside \(cafeLocation)")
+        //return cafeLocation
     }
 }

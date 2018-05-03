@@ -20,7 +20,6 @@ class DataManager: NSObject {
         self.matchedUsers = MatchUsers.init(user: user)
         self.user2 = matchedUsers.findClosestUser()!
         self.locateCafe = LocateCafe(currentUser: user, otherUser: user2)
-        locateCafe.fetchCafeData()
     
     }
     func dataAnnotations() -> [MKAnnotation] {

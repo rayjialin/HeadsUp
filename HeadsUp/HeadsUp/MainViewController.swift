@@ -23,6 +23,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
+        self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
@@ -38,9 +39,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
                 let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
-                
-                self.mainMapView.addAnnotations(dataManager.dataAnnotations())
-                self.mainMapView.showAnnotations(dataManager.dataAnnotations(), animated: true)
+                dataManager.locateCafe.fetchCafeData { (cafeAnnotation) in
+                    var annotationArray: [MKAnnotation] = dataManager.dataAnnotations()
+                    annotationArray.append(cafeAnnotation)
+                    self.mainMapView.addAnnotations(annotationArray)
+                    self.mainMapView.showAnnotations(annotationArray, animated: true)
+                }
             }
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)

@@ -17,12 +17,12 @@
     NSString *yelpAPIKey = @"czW64vnYPyjrfugdWlPn8HDwFHioGEc_-0TU7qjQuwQTOyan2QcnzafJOmKIa5xt2NLkxvWkQz_VNQ-cvkxoNzGkjFhoxL_-vtAky871KgUQxwRMYVk4MBAOdZvjWnYx";
     
     NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithString:yelpAPIString];
-    NSURLQueryItem *categoryItem = [NSURLQueryItem queryItemWithName:@"term" value:@"restaurant"];
+    NSURLQueryItem *termItem = [NSURLQueryItem queryItemWithName:@"term" value:@"restaurant"];
     NSURLQueryItem *sortByDistanceItem = [NSURLQueryItem queryItemWithName:@"sort_by" value:@"distance"];
     NSURLQueryItem *radiusItem = [NSURLQueryItem queryItemWithName:@"radius" value:@(radius).stringValue];
     NSURLQueryItem *latItem = [NSURLQueryItem queryItemWithName:@"latitude" value:@(location.latitude).stringValue];
     NSURLQueryItem *lngItem = [NSURLQueryItem queryItemWithName:@"longitude" value:@(location.longitude).stringValue];
-    urlComponents.queryItems = @[categoryItem, latItem, lngItem,radiusItem, sortByDistanceItem];
+    urlComponents.queryItems = @[termItem, latItem, lngItem, radiusItem, sortByDistanceItem];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:urlComponents.URL];
     request.HTTPMethod = @"GET";
