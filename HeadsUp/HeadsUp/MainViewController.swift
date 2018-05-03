@@ -15,11 +15,19 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     var locationManager = CLLocationManager()
     var currentLocation: CLLocation = CLLocation()
     
-
+    @IBOutlet weak var defaultView: UIView!
+    @IBOutlet var searchingView: UIView!
+    @IBOutlet var profileView: UIView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
+        
+        self.view.addSubview(self.searchingView)
+        ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+        
     
     }
     

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,49 +15,87 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MainViewController" customModule="HeadsUp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="wVe-1U-qkV">
-                                <rect key="frame" x="0.0" y="20" width="375" height="284"/>
+                                <rect key="frame" x="0.0" y="20" width="414" height="325"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="325" id="kiA-50-GZd"/>
+                                </constraints>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="qXa-sI-ufi"/>
                                 </connections>
                             </mapView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F4I-sb-XsO">
-                                <rect key="frame" x="0.0" y="303" width="375" height="364"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Searching..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="awR-RC-9In">
-                                        <rect key="frame" x="8" y="156" width="360" height="53"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nz3-19-tQl">
+                                <rect key="frame" x="0.0" y="345" width="414" height="391"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="F4I-sb-XsO" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="22e-gK-4bc"/>
-                            <constraint firstItem="F4I-sb-XsO" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="AyS-eh-Cqo"/>
-                            <constraint firstItem="wVe-1U-qkV" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Ozy-Kz-1vk"/>
-                            <constraint firstItem="wVe-1U-qkV" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Q85-t5-WRD"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="wVe-1U-qkV" secondAttribute="bottom" constant="363" id="hK6-Lu-0xz"/>
-                            <constraint firstItem="F4I-sb-XsO" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="jUy-7Q-94H"/>
-                            <constraint firstItem="F4I-sb-XsO" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="283" id="pvL-w9-s5Z"/>
-                            <constraint firstItem="wVe-1U-qkV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="tgo-vg-CvE"/>
+                            <constraint firstItem="Nz3-19-tQl" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="2dp-az-9m2"/>
+                            <constraint firstItem="wVe-1U-qkV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Ho7-ob-pNw"/>
+                            <constraint firstItem="wVe-1U-qkV" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="MaH-nZ-gxa"/>
+                            <constraint firstItem="Nz3-19-tQl" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="QfN-dV-sdX"/>
+                            <constraint firstItem="Nz3-19-tQl" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="VUT-jq-YpL"/>
+                            <constraint firstItem="Nz3-19-tQl" firstAttribute="top" secondItem="wVe-1U-qkV" secondAttribute="bottom" id="mmq-91-ETl"/>
+                            <constraint firstItem="wVe-1U-qkV" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="wes-RZ-wdV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="defaultView" destination="Nz3-19-tQl" id="muu-Qd-Ut9"/>
                         <outlet property="mainMapView" destination="wVe-1U-qkV" id="pHH-Pc-tYx"/>
+                        <outlet property="profileView" destination="QEf-Bi-E3J" id="hlp-db-XOx"/>
+                        <outlet property="searchingView" destination="WiF-Na-8Ji" id="hkJ-u5-KtH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <view contentMode="scaleToFill" id="WiF-Na-8Ji">
+                    <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Searching.." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dzy-cy-kOA">
+                            <rect key="frame" x="15" y="53.666666666666657" width="210" height="21"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="210" id="Xkv-FI-Ltc"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="dzy-cy-kOA" firstAttribute="centerX" secondItem="Z7c-PP-kqi" secondAttribute="centerX" id="ilR-xl-X44"/>
+                        <constraint firstItem="dzy-cy-kOA" firstAttribute="centerY" secondItem="Z7c-PP-kqi" secondAttribute="centerY" id="kfA-TZ-qGQ"/>
+                    </constraints>
+                    <viewLayoutGuide key="safeArea" id="Z7c-PP-kqi"/>
+                </view>
+                <view contentMode="scaleToFill" id="QEf-Bi-E3J">
+                    <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gal-7Q-YX8">
+                            <rect key="frame" x="95" y="53.666666666666657" width="50" height="21"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="50" id="Cfb-4w-EPT"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="Gal-7Q-YX8" firstAttribute="centerX" secondItem="nUS-xT-ykz" secondAttribute="centerX" id="5fF-Yb-Mbd"/>
+                        <constraint firstItem="Gal-7Q-YX8" firstAttribute="centerY" secondItem="nUS-xT-ykz" secondAttribute="centerY" id="r1h-qt-byh"/>
+                    </constraints>
+                    <viewLayoutGuide key="safeArea" id="nUS-xT-ykz"/>
+                </view>
             </objects>
-            <point key="canvasLocation" x="32.799999999999997" y="31.934032983508249"/>
+            <point key="canvasLocation" x="31.884057971014496" y="31.793478260869566"/>
         </scene>
     </scenes>
 </document>
