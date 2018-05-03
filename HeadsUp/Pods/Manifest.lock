@@ -88,6 +88,8 @@ PODS:
   - FirebaseUI/Twitter (4.5.5):
     - FirebaseUI/Auth
     - TwitterKit (~> 3.0)
+  - GeoFire (2.0.1):
+    - Firebase/Database (~> 4.0)
   - GoogleSignIn (4.1.2):
     - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
     - "GoogleToolboxForMac/NSString+URLArguments (~> 2.1)"
@@ -149,6 +151,7 @@ DEPENDENCIES:
   - Firebase/Database
   - Firebase/Storage
   - FirebaseUI
+  - GeoFire (from `https://github.com/firebase/geofire-objc.git`)
   - GoogleSignIn
 
 SPEC REPOS:
@@ -181,6 +184,15 @@ SPEC REPOS:
     - TwitterCore
     - TwitterKit
 
+EXTERNAL SOURCES:
+  GeoFire:
+    :git: https://github.com/firebase/geofire-objc.git
+
+CHECKOUT OPTIONS:
+  GeoFire:
+    :commit: dc408bcd4268cc5ec8831cda0000c23863767d42
+    :git: https://github.com/firebase/geofire-objc.git
+
 SPEC CHECKSUMS:
   Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
   BoringSSL: 60dd24df4af296bf41d78e5841dbb95d75f88c0d
@@ -195,6 +207,7 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: 8d20d890d65c917f9f7d9950b6e10a760ad34321
   FirebaseStorage: 0c223481c8f89ed300cf1239ddd2d9833622c65f
   FirebaseUI: 7f149d40db1a67c459df16540256b66d8f8e8c70
+  GeoFire: 3e70a24019dc16816190f533c9cac0d1321c4a71
   GoogleSignIn: d9ef55b10f0aa401a5de2747f59b725e4b9732ac
   GoogleToolboxForMac: 91c824d21e85b31c2aae9bb011c5027c9b4e738f
   gRPC: 70703dc9ba31c72341fc7f37745cc1c379edee96
@@ -210,6 +223,6 @@ SPEC CHECKSUMS:
   TwitterCore: 644d59e75abccb26cf0a9050d2c4dea0e5412241
   TwitterKit: a2e60ddcedbf54091eac6f27685ca7a87681e1d7
 
-PODFILE CHECKSUM: 8599e1851d8c000c3fccefb4b2fc7f3f23e8f833
+PODFILE CHECKSUM: 6582b4ab5239f87821855e6393aba1dd83451757
 
 COCOAPODS: 1.5.0

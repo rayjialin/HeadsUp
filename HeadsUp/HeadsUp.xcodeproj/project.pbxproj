@@ -76,6 +76,37 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		7A6DD268209B827A009A7239 /* M */ = {
+			isa = PBXGroup;
+			children = (
+				7AE64C47209A5AD900288B91 /* User.swift */,
+				7AE64C41209A419700288B91 /* CafeModel.swift */,
+				7AE64C49209A611600288B91 /* MatchUsers.swift */,
+				7AE64C4B209A829200288B91 /* LocateCafe.swift */,
+			);
+			path = M;
+			sourceTree = "<group>";
+		};
+		7A6DD269209B8421009A7239 /* V */ = {
+			isa = PBXGroup;
+			children = (
+				7AE64C3D209A3F0000288B91 /* MainViewController.swift */,
+				7AE64C4F209AB9CD00288B91 /* ViewLayoutConstraint.h */,
+				7AE64C50209AB9CD00288B91 /* ViewLayoutConstraint.m */,
+			);
+			name = V;
+			sourceTree = "<group>";
+		};
+		7A6DD26A209B854C009A7239 /* C */ = {
+			isa = PBXGroup;
+			children = (
+				7AE64C4D209AA9A900288B91 /* DataManager.swift */,
+				7AE64C44209A43C200288B91 /* NetworkManager.h */,
+				7AE64C45209A43C200288B91 /* NetworkManager.m */,
+			);
+			path = C;
+			sourceTree = "<group>";
+		};
 		7AE64C1B209A393000288B91 = {
 			isa = PBXGroup;
 			children = (
@@ -98,22 +129,15 @@
 			isa = PBXGroup;
 			children = (
 				7AE64C27209A393000288B91 /* AppDelegate.swift */,
-				7AE64C3D209A3F0000288B91 /* MainViewController.swift */,
-				7AE64C41209A419700288B91 /* CafeModel.swift */,
 				7AE64C43209A43C100288B91 /* HeadsUp-Bridging-Header.h */,
-				7AE64C49209A611600288B91 /* MatchUsers.swift */,
-				7AE64C47209A5AD900288B91 /* User.swift */,
-				7AE64C4B209A829200288B91 /* LocateCafe.swift */,
-				7AE64C44209A43C200288B91 /* NetworkManager.h */,
-				7AE64C45209A43C200288B91 /* NetworkManager.m */,
-				7AE64C4D209AA9A900288B91 /* DataManager.swift */,
+				7A6DD268209B827A009A7239 /* M */,
+				7A6DD269209B8421009A7239 /* V */,
+				7A6DD26A209B854C009A7239 /* C */,
 				7AE64C2B209A393000288B91 /* Main.storyboard */,
 				7AE64C2E209A393100288B91 /* Assets.xcassets */,
 				7AE64C30209A393100288B91 /* LaunchScreen.storyboard */,
 				7AE64C33209A393100288B91 /* Info.plist */,
 				7AE64C39209A39B800288B91 /* GoogleService-Info.plist */,
-				7AE64C4F209AB9CD00288B91 /* ViewLayoutConstraint.h */,
-				7AE64C50209AB9CD00288B91 /* ViewLayoutConstraint.m */,
 			);
 			path = HeadsUp;
 			sourceTree = "<group>";
@@ -235,6 +259,7 @@
 				"${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMOAuth2/GTMOAuth2.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GeoFire/GeoFire.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
@@ -255,6 +280,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKLoginKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMOAuth2.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GeoFire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
@@ -453,10 +479,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = HeadsUp/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.headsup.HeadsUp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "HeadsUp/HeadsUp-Bridging-Header.h";
@@ -474,10 +497,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = HeadsUp/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.headsup.HeadsUp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "HeadsUp/HeadsUp-Bridging-Header.h";
