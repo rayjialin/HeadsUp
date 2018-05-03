@@ -15,7 +15,6 @@ class User: NSObject, MKAnnotation {
     let name: String
     var coordinate: CLLocationCoordinate2D
     var isMatched: Bool
-    //var uuid: String
     var geofireRef: DatabaseReference
     var geoFire: GeoFire
     
@@ -23,39 +22,45 @@ class User: NSObject, MKAnnotation {
         self.name = name;
         self.coordinate = coordinate;
         self.isMatched = false
-        //self.uuid = UUID().uuidString
         self.geofireRef = Database.database().reference()
         self.geoFire = GeoFire(firebaseRef: self.geofireRef)
-        super.init()
-        //saveLocGeoFire()
-        //self.geofireRef.child(self.uuid).setValue(["name": self.name]);
-       // print(self.uuid)
     }
     
     func saveLocGeoFire(uuid: String) {
+        self.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
+            if snapshot.hasChild(uuid){
+                
+                print("true uuid exist")
+                
+            } else {
+                self.geofireRef.child("Users").child(uuid).updateChildValues(["name": self.name])
+                print("false uuid doesnt exist")
+            }
+        }
+        
         geoFire.setLocation(CLLocation(latitude: self.coordinate.latitude, longitude: self.coordinate.longitude), forKey: uuid) { (error) in
             if (error != nil) {
                 print("An error occured: \(error)")
             } else {
                 print("Saved location successfully!")
                 print("uuid: \(uuid)")
-                self.geofireRef.child(uuid).updateChildValues(["name": self.name])
-//                self.geofireRef.child(self.uuid).setValue(["name": self.name]);
             }
         }
         
     }
     
-    func retrieveLocGeoFire() {
-        self.geoFire.getLocationForKey("user-location") { (location, error) in
+    func retrieveLocGeoFire(uuid: String) {
+        self.geoFire.getLocationForKey(uuid) { (location, error) in
             if (error != nil) {
                 print("An error occurred getting the location for \"user-location\": \(error?.localizedDescription)")
             } else if (location != nil) {
                 print("Location for \"user-location\" is [\(location?.coordinate.latitude), \(location?.coordinate.longitude)]")
+               // print(self.geofireRef.co)
             } else {
                 print("GeoFire does not contain a location for \"user-location\"")
             }
         }
+        
     }
 
 }

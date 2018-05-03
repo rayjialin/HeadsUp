@@ -56,9 +56,11 @@ class LocateCafe: NSObject, MKAnnotation {
         let networkManager = NetworkManager()
         networkManager.fetchCafes(withUserLocation: midPointLocation, radius: 100) { (cafes) in
             
-            if let unwrappedCafe = cafes as? [CafeModel] {
+            if let unwrappedCafe = cafes as? [CafeModel], unwrappedCafe.count > 0 {
                 DispatchQueue.main.async {
 //                    cafeLocation = unwrappedCafe[0].coordinate
+                    
+                    //guard let unwrappedCafe = unwrappedCafe else { return }
                     completion(unwrappedCafe[0])
                     //print("cafelocation inside \(cafeLocation)")
                     
