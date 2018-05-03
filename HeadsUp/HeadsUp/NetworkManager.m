@@ -11,17 +11,18 @@
 
 @implementation NetworkManager
 
--(void)fetchCafesWithUserLocation:(CLLocationCoordinate2D)location searchTerm:(NSString *)searchTerm completion:(void(^)(NSArray<MKAnnotation>*))handler {
+-(void)fetchCafesWithUserLocation:(CLLocationCoordinate2D)location radius:(int)radius completion:(void(^)(NSArray<MKAnnotation>*))handler {
     
     NSString *yelpAPIString = @"https://api.yelp.com/v3/businesses/search";
     NSString *yelpAPIKey = @"czW64vnYPyjrfugdWlPn8HDwFHioGEc_-0TU7qjQuwQTOyan2QcnzafJOmKIa5xt2NLkxvWkQz_VNQ-cvkxoNzGkjFhoxL_-vtAky871KgUQxwRMYVk4MBAOdZvjWnYx";
     
     NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithString:yelpAPIString];
-    NSURLQueryItem *categoryItem = [NSURLQueryItem queryItemWithName:@"categories" value:@"cafes"];
-    NSURLQueryItem *searchItem = [NSURLQueryItem queryItemWithName:@"term" value:searchTerm];
+    NSURLQueryItem *categoryItem = [NSURLQueryItem queryItemWithName:@"term" value:@"restaurant"];
+    NSURLQueryItem *sortByDistanceItem = [NSURLQueryItem queryItemWithName:@"sort_by" value:@"distance"];
+    NSURLQueryItem *radiusItem = [NSURLQueryItem queryItemWithName:@"radius" value:@(radius).stringValue];
     NSURLQueryItem *latItem = [NSURLQueryItem queryItemWithName:@"latitude" value:@(location.latitude).stringValue];
     NSURLQueryItem *lngItem = [NSURLQueryItem queryItemWithName:@"longitude" value:@(location.longitude).stringValue];
-    urlComponents.queryItems = @[categoryItem, latItem, lngItem,searchItem];
+    urlComponents.queryItems = @[categoryItem, latItem, lngItem,radiusItem, sortByDistanceItem];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:urlComponents.URL];
     request.HTTPMethod = @"GET";

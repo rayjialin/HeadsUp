@@ -37,6 +37,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                 let matchedUsers = MatchUsers.init(user: user)
                 let user2: User = matchedUsers.findClosestUser()!
                 let locateCafe = LocateCafe(currentUser: user, otherUser: user2)
+                locateCafe.fetchCafeData()
                 let array: [MKAnnotation] = [user2, locateCafe]
                 self.mainMapView.addAnnotations(array)
                 self.mainMapView.showAnnotations(array, animated: true)

@@ -50,5 +50,16 @@ class LocateCafe: NSObject, MKAnnotation {
         return center
     }
 
-    
+    func fetchCafeData(){
+        let networkManager = NetworkManager()
+        //var cafeArray: [MKAnnotation] = []
+        networkManager.fetchCafes(withUserLocation: self._coordinate, radius: 100) { (cafes) in
+            
+            if let unwrappedCafe = cafes {
+                for cafe in unwrappedCafe as! [CafeModel] {
+                    print(cafe.coordinate)
+                }
+            }
+        }
+    }
 }

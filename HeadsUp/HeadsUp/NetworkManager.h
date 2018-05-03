@@ -13,6 +13,6 @@
 @interface NetworkManager : NSObject
 
 
--(void)fetchCafesWithUserLocation:(CLLocationCoordinate2D)location searchTerm:(NSString *)searchTerm completion:(void(^)(NSArray<MKAnnotation>*))handler;
+-(void)fetchCafesWithUserLocation:(CLLocationCoordinate2D)location radius:(int)radius completion:(void(^)(NSArray<MKAnnotation>*))handler;
 
 @end
