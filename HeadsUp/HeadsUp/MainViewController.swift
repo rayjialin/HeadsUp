@@ -10,10 +10,12 @@ import UIKit
 import MapKit
 
 class MainViewController: UIViewController, CLLocationManagerDelegate {
-
+    
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
+    var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
+    var user: User?
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -36,7 +38,18 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
+                
+                self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
+                if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
+                    // Use it...
+                    self.user?.saveLocGeoFire(uuid: udid)
+                } else {
+                    let udid = UUID().uuidString
+                    UserDefaults.standard.set(udid, forKey: "MY_UUID")
+                }
                 self.placeAnnotations()
+//                self.dataManager?.saveLocGeoFire(coordinate: self.currentLocation.coordinate, key: "user-location")
+//                self.dataManager?.retrieveLocGeoFire()
             }
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
@@ -50,9 +63,11 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func placeAnnotations() -> Void {
-        let dataManager = DataManager(currentLocation: self.currentLocation.coordinate)
-        dataManager.locateCafe.fetchCafeData { (cafeAnnotation) in
-            var annotationArray: [MKAnnotation] = dataManager.dataAnnotations()
+        guard let user = self.user else {return}
+        self.dataManager = DataManager(user: user)
+        self.dataManager?.locateCafe.fetchCafeData { (cafeAnnotation) in
+            guard let dataAnnotations = self.dataManager?.dataAnnotations() else { return }
+            var annotationArray: [MKAnnotation] = dataAnnotations
             annotationArray.append(cafeAnnotation)
             self.mainMapView.addAnnotations(annotationArray)
             self.mainMapView.showAnnotations(annotationArray, animated: true)

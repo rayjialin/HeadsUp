@@ -54,7 +54,6 @@ class LocateCafe: NSObject, MKAnnotation {
     func fetchCafeData(completion: @escaping (_ completion: MKAnnotation) -> Void) {
         let midPointLocation = findCenterPoint(_lo1: self.currentUser.coordinate, _loc2: self.otherUser.coordinate)
         let networkManager = NetworkManager()
-//        var cafeLocation = CLLocationCoordinate2D()
         networkManager.fetchCafes(withUserLocation: midPointLocation, radius: 100) { (cafes) in
             
             if let unwrappedCafe = cafes as? [CafeModel] {
@@ -66,7 +65,5 @@ class LocateCafe: NSObject, MKAnnotation {
                 }
             }
         }
-        //print("cafelocation outside \(cafeLocation)")
-        //return cafeLocation
     }
 }
