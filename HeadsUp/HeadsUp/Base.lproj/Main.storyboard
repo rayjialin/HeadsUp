@@ -46,6 +46,8 @@
                     <connections>
                         <outlet property="defaultView" destination="Nz3-19-tQl" id="muu-Qd-Ut9"/>
                         <outlet property="mainMapView" destination="wVe-1U-qkV" id="pHH-Pc-tYx"/>
+                        <outlet property="meetButton" destination="USD-sI-X9K" id="1Pa-sI-HCL"/>
+                        <outlet property="meetCounter" destination="1eX-mO-2RT" id="ASp-fh-An5"/>
                         <outlet property="profileView" destination="eAj-6H-K6S" id="nyl-JA-UoZ"/>
                         <outlet property="searchingView" destination="pZW-QX-F79" id="oQP-EU-yNt"/>
                         <outlet property="talkingView" destination="SlF-x3-muR" id="aA8-mt-qlr"/>
@@ -127,6 +129,17 @@
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
+<<<<<<< HEAD
+=======
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="USD-sI-X9K">
+                            <rect key="frame" x="10" y="188" width="220" height="72"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="50"/>
+                            <state key="normal" title="Start"/>
+                            <connections>
+                                <action selector="startMeeting:" destination="BYZ-38-t0r" eventType="touchUpInside" id="34J-JL-vD4"/>
+                            </connections>
+                        </button>
+>>>>>>> rayUINav
                     </subviews>
                     <constraints>
                         <constraint firstItem="04m-2s-DrM" firstAttribute="centerX" secondItem="SJI-X0-ZKZ" secondAttribute="centerX" id="0bw-iL-otL"/>

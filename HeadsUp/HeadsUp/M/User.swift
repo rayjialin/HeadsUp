@@ -14,14 +14,14 @@ class User: NSObject, MKAnnotation {
     
     let name: String
     var coordinate: CLLocationCoordinate2D
-    var isMatched: Bool
+    var matchedUserUUID: String?
     var geofireRef: DatabaseReference
     var geoFire: GeoFire
     
     init(name: String, coordinate: CLLocationCoordinate2D) {
         self.name = name;
         self.coordinate = coordinate;
-        self.isMatched = false
+//        self.isMatched = false
         self.geofireRef = Database.database().reference()
         self.geoFire = GeoFire(firebaseRef: self.geofireRef.child("User_Location"))
     }

@@ -19,14 +19,18 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var currentLocation: CLLocation = CLLocation()
     var user: User?
     var restaurantAnnotation: LocateCafe?
+    var uuid: String?
+    var isObserving = 0
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
     @IBOutlet var profileView: UIView!
     @IBOutlet var waitingView: UIView!
-    @IBOutlet var startTalkingView: UIView!
+    //    @IBOutlet var startTalkingView: UIView!
     @IBOutlet var talkingView: UIView!
     @IBOutlet var timerView: UIView!
+    @IBOutlet weak var meetButton: UIButton!
+    @IBOutlet weak var meetCounter: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +41,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -46,7 +52,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
             }
-            self.user = User(name: "Brian", coordinate: self.currentLocation.coordinate)
+            self.user = User(name: "Ray", coordinate: self.currentLocation.coordinate)
             guard let user = self.user else {return}
             self.dataManager = DataManager(user: user)
         }
@@ -79,10 +85,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         let nearbyUser = User(name: name, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
                         if self.dataManager?.closestUser != nil {
+                            self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
-                        
+                            
+                            // listen to matched users action
+                            self.actionObserver()
+                            
                         }
                         self.placeAnnotations()
                     }
@@ -129,6 +139,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
     }
     
+
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
             return nil
@@ -156,11 +167,61 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         return annotationView
     }
-    
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
+        
+    @IBAction func startMeeting(_ sender: UIButton) {
+        // add property to user on firebase to set "agreeToMeet" condition to True
+        if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String{
+            self.user?.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
+                if snapshot.hasChild(uuid){
+                    self.user?.geofireRef.child("Users").child(uuid).updateChildValues(["agreedToMeet": true])
+                    
+                    // update current user button state
+                    self.meetButton.alpha = 0.4
+                    self.meetButton.isEnabled = false
+                    self.isObserving = 1
+                    
+                    if let matchedUserUUID = self.user?.matchedUserUUID{
+                        if snapshot.hasChild(uuid){
+                            if snapshot.childSnapshot(forPath: matchedUserUUID).hasChild("agreedToMeet"){
+                                let value = snapshot.childSnapshot(forPath: matchedUserUUID).value as? NSDictionary
+                                guard let userDict = value else {return}
+                                if let agreedToMeet = userDict["agreedToMeet"] as? Bool{
+                                    if agreedToMeet == true{
+                                        self.profileView.removeFromSuperview()
+                                        self.view.addSubview(self.talkingView)
+                                        ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+                                    }
+                                }
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                }
+            }
+        }
     }
     
+    
+    func actionObserver(){
+        // track the agreedToMeet state on firebase
+        if isObserving == 1{
+            guard let matchedUserUUID = self.user?.matchedUserUUID else {return}
+            self.user?.geofireRef.child("Users").child(matchedUserUUID).child("agreedToMeet").observe(.value , with: {snapshot in
+                let agreedToMeet = snapshot.value as? Bool
+                //
+                if agreedToMeet == true{
+                    self.profileView.removeFromSuperview()
+                    self.view.addSubview(self.talkingView)
+                    ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+                }
+            })
+        }
+        
+    }
+
 }
+    
+

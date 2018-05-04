@@ -28,6 +28,7 @@ class DataManager: NSObject {
         self.usersArray.append(newUser)
         guard let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: usersArray) else { return }
         self.closestUser = closestUser
+//        self.currentUser.matchedUserUUID = self.closestUser
         
     }
     
