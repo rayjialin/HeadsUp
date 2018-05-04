@@ -11,13 +11,14 @@ import MapKit
 import GeoFire
 import Firebase
 
-class MainViewController: UIViewController, CLLocationManagerDelegate {
+class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
+    var restaurantAnnotation: LocateCafe?
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -104,6 +105,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         self.dataManager?.dataAnnotations(completion: { (annotationArray) in
             self.dataManager?.locateCafe?.fetchCafeData { (cafeAnnotation) in
                 self.mainMapView.addAnnotation(cafeAnnotation)
+                self.restaurantAnnotation = cafeAnnotation as? LocateCafe
             }
             self.mainMapView.addAnnotations(annotationArray)
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
@@ -125,6 +127,34 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            return nil
+        }
+        let reuseId = "myId"
+        
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId)
+        if annotationView == nil {
+            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+        } else {
+            annotationView?.annotation = annotation
+        }
+        
+        if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
+            annotationView?.image = UIImage(named: "userAnnotation-2")
+        }
+        if let midpointAnnotation = annotation as? LocateCafe {
+            annotationView?.image = UIImage(named: "midpointAnnotation")
+        }
+        if let restaurantAnnotation = annotation as? LocateCafe, self.restaurantAnnotation == annotation as? LocateCafe {
+            annotationView?.image = UIImage(named: "restaurantAnnotation")
+        }
+        
+        annotationView?.frame = CGRect(x: 0, y: 0, width: 35, height: 40)
+        
+        return annotationView
     }
     
     
