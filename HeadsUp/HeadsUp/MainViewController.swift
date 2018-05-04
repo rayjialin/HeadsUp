@@ -11,7 +11,7 @@ import MapKit
 import GeoFire
 import Firebase
 
-class MainViewController: UIViewController, CLLocationManagerDelegate {
+class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
@@ -125,6 +125,27 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
         self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            return nil
+        }
+        let reuseId = "myId"
+        
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId)
+        if annotationView == nil {
+            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+        } else {
+            annotationView?.annotation = annotation
+        }
+        
+        if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
+            annotationView?.image = UIImage(named: "userAnnotation-2")
+            annotationView?.frame = CGRect(x: 0, y: 0, width: 35, height: 40)
+        }
+        
+        return annotationView
     }
     
     
