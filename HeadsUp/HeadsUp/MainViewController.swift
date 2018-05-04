@@ -36,12 +36,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
-            print("made it")
             self.locationManager.startUpdatingLocation()
             self.mainMapView.showsUserLocation = true
             if let firstLocation = manager.location {
@@ -62,7 +60,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             // Use it...
             self.user?.saveLocGeoFire(uuid: udid)
             
-            
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
                 let value = snapshot.value as? NSDictionary
@@ -81,7 +78,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                         let nearbyUser = User(name: name, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
                         if self.dataManager?.closestUser != nil {
-                            print("I AM NOT NILL BITCH")
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
@@ -112,9 +108,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             self.mainMapView.addAnnotations(annotationArray)
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
         })
-        
-        print("ODFKSODKSOFSDKSOFOSDKFOSDOS")
-        print(#line, self.mainMapView.annotations.count)
         
         /*
          * Enables all annotations to fit on the screen.

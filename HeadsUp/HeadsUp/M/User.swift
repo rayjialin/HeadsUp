@@ -55,7 +55,6 @@ class User: NSObject, MKAnnotation {
                 print("An error occurred getting the location for \"user-location\": \(error?.localizedDescription)")
             } else if (location != nil) {
                 print("Location for \"user-location\" is [\(location?.coordinate.latitude), \(location?.coordinate.longitude)]")
-               // print(self.geofireRef.co)
             } else {
                 print("GeoFire does not contain a location for \"user-location\"")
             }
