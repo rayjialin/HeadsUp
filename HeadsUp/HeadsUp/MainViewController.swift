@@ -34,8 +34,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         self.locationManager.distanceFilter = 5;
         //self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
-        self.view.addSubview(self.profileView)
-        ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
+        self.view.addSubview(self.searchingView)
+        ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
         
     }
     
@@ -51,9 +51,9 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             guard let user = self.user else {return}
             self.dataManager = DataManager(user: user)
         }
-            let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
-            let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
-            self.mainMapView.setRegion(region, animated: true)
+        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
+        let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
+        self.mainMapView.setRegion(region, animated: true)
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -75,13 +75,19 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                 var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
                     print("Key '\(key)' entered the search area and is at location '\(location)'")
                     if self.currentLocation.coordinate.latitude != location.coordinate.latitude && self.currentLocation.coordinate.longitude != location.coordinate.longitude {
-                    guard let userDict = value else {return}
-                    guard let singleDict = userDict[key] as? NSDictionary else {return}
-                    guard let name = singleDict["name"] as? String else {return}
-                    let nearbyUser = User(name: name, coordinate: location.coordinate)
-                   // self.dataManager?.usersArray.append(nearbyUser)
-                    self.dataManager?.addNearbyUser(newUser: nearbyUser)
-                         self.placeAnnotations()
+                        guard let userDict = value else {return}
+                        guard let singleDict = userDict[key] as? NSDictionary else {return}
+                        guard let name = singleDict["name"] as? String else {return}
+                        let nearbyUser = User(name: name, coordinate: location.coordinate)
+                        self.dataManager?.addNearbyUser(newUser: nearbyUser)
+                        if self.dataManager?.closestUser != nil {
+                            print("I AM NOT NILL BITCH")
+                            self.searchingView.removeFromSuperview()
+                            self.view.addSubview(self.profileView)
+                            ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
+                        
+                        }
+                        self.placeAnnotations()
                     }
                 })
                 
@@ -90,12 +96,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                     
                 })
             })
-        
+            
         } else {
             let udid = UUID().uuidString
             UserDefaults.standard.set(udid, forKey: "MY_UUID")
         }
-    
+        
     }
     
     func placeAnnotations() -> Void {
@@ -133,5 +139,5 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
 }
