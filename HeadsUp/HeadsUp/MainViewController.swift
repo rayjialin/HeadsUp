@@ -45,7 +45,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
             }
-            self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
+            self.user = User(name: "Brian", coordinate: self.currentLocation.coordinate)
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
@@ -58,7 +58,23 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
             // Use it...
             self.user?.saveLocGeoFire(uuid: udid)
-            self.user?.retrieveLocGeoFire(uuid: udid)
+            //self.user?.retrieveLocGeoFire(uuid: udid)
+            
+            
+            // RETRIEVE USERS PROFILE DATA
+            self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
+                let value = snapshot.value as? NSDictionary
+                if let allKeys = value?.allKeys as? [String], allKeys.count > 0 {
+                    for userUUID in allKeys {
+                        self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
+                            //self.user?.retrieveLocGeoFire(uuid: userUUID)
+                            //var newUser = [
+//                            self.dataManager?.usersArray?.append(<#T##newElement: User##User#>)
+                        })
+                    }
+                }
+            })
+        
         } else {
             let udid = UUID().uuidString
             UserDefaults.standard.set(udid, forKey: "MY_UUID")
@@ -66,8 +82,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         
         
         // Use Geofire query with radius to find locations in the area.
-        let center = CLLocation(latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.latitude)
-        var circleQuery = user?.geoFire.query(at: center, withRadius: 0.1)
+        let center = CLLocation(latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.longitude)
+        var circleQuery = user?.geoFire.query(at: center, withRadius: 1000000000.6)
         
         // Query location by region
         let span = MKCoordinateSpanMake(0.001, 0.001)
@@ -80,11 +96,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
         
         regionQuery?.observeReady({
             print("All initial data has been loaded and events have been fired!")
+            
         })
         
         
         self.placeAnnotations()
-        
+    
     }
     
     func placeAnnotations() -> Void {

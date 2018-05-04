@@ -16,6 +16,7 @@ class DataManager: NSObject {
     var matchedUsers: MatchUsers
     var user2: User
     var locateCafe: LocateCafe
+    var usersArray: [User]? = nil
 //    var geofireRef: DatabaseReference
 //    var geoFire: GeoFire
     

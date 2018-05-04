@@ -23,7 +23,7 @@ class User: NSObject, MKAnnotation {
         self.coordinate = coordinate;
         self.isMatched = false
         self.geofireRef = Database.database().reference()
-        self.geoFire = GeoFire(firebaseRef: self.geofireRef)
+        self.geoFire = GeoFire(firebaseRef: self.geofireRef.child("User_Location"))
     }
     
     func saveLocGeoFire(uuid: String) {
