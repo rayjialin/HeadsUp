@@ -18,6 +18,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
+    var restaurantAnnotation: LocateCafe?
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -104,6 +105,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         self.dataManager?.dataAnnotations(completion: { (annotationArray) in
             self.dataManager?.locateCafe?.fetchCafeData { (cafeAnnotation) in
                 self.mainMapView.addAnnotation(cafeAnnotation)
+                self.restaurantAnnotation = cafeAnnotation as? LocateCafe
             }
             self.mainMapView.addAnnotations(annotationArray)
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
@@ -142,8 +144,15 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
             annotationView?.image = UIImage(named: "userAnnotation-2")
-            annotationView?.frame = CGRect(x: 0, y: 0, width: 35, height: 40)
         }
+        if let midpointAnnotation = annotation as? LocateCafe {
+            annotationView?.image = UIImage(named: "midpointAnnotation")
+        }
+        if let restaurantAnnotation = annotation as? LocateCafe, self.restaurantAnnotation == annotation as? LocateCafe {
+            annotationView?.image = UIImage(named: "restaurantAnnotation")
+        }
+        
+        annotationView?.frame = CGRect(x: 0, y: 0, width: 35, height: 40)
         
         return annotationView
     }
