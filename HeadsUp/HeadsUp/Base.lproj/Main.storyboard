@@ -129,8 +129,6 @@
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-<<<<<<< HEAD
-=======
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="USD-sI-X9K">
                             <rect key="frame" x="10" y="188" width="220" height="72"/>
                             <fontDescription key="fontDescription" type="system" pointSize="50"/>
@@ -139,7 +137,6 @@
                                 <action selector="startMeeting:" destination="BYZ-38-t0r" eventType="touchUpInside" id="34J-JL-vD4"/>
                             </connections>
                         </button>
->>>>>>> rayUINav
                     </subviews>
                     <constraints>
                         <constraint firstItem="04m-2s-DrM" firstAttribute="centerX" secondItem="SJI-X0-ZKZ" secondAttribute="centerX" id="0bw-iL-otL"/>
