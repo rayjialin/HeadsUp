@@ -8,6 +8,8 @@
 
 import UIKit
 import MapKit
+import GeoFire
+import Firebase
 
 class MainViewController: UIViewController, CLLocationManagerDelegate {
     
@@ -46,6 +48,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
                 self.currentLocation = firstLocation
             }
             self.user = User(name: "Brian", coordinate: self.currentLocation.coordinate)
+            guard let user = self.user else {return}
+            self.dataManager = DataManager(user: user)
         }
             let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
             let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
@@ -54,66 +58,54 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print("here")
-//        self.user = User(name: "UserName", coordinate: self.currentLocation.coordinate)
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
             // Use it...
             self.user?.saveLocGeoFire(uuid: udid)
-            //self.user?.retrieveLocGeoFire(uuid: udid)
             
             
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
                 let value = snapshot.value as? NSDictionary
-                if let allKeys = value?.allKeys as? [String], allKeys.count > 0 {
-                    for userUUID in allKeys {
-                        self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
-                            //self.user?.retrieveLocGeoFire(uuid: userUUID)
-                            //var newUser = [
-//                            self.dataManager?.usersArray?.append(<#T##newElement: User##User#>)
-                        })
+                
+                // Use Geofire query with radius to find locations in the area.
+                let center = CLLocation(latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.longitude)
+                let geoFire = GeoFire(firebaseRef: Database.database().reference(withPath: "User_Location"))
+                let circleQuery = geoFire.query(at: center, withRadius: 10.6)
+                
+                var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
+                    print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    if self.currentLocation.coordinate.latitude != location.coordinate.latitude && self.currentLocation.coordinate.longitude != location.coordinate.longitude {
+                    guard let userDict = value else {return}
+                    guard let singleDict = userDict[key] as? NSDictionary else {return}
+                    guard let name = singleDict["name"] as? String else {return}
+                    let nearbyUser = User(name: name, coordinate: location.coordinate)
+                   // self.dataManager?.usersArray.append(nearbyUser)
+                    self.dataManager?.addNearbyUser(newUser: nearbyUser)
+                         self.placeAnnotations()
                     }
-                }
+                })
+                
+                circleQuery.observeReady({
+                    print("All initial data has been loaded and events have been fired!")
+                    
+                })
             })
         
         } else {
             let udid = UUID().uuidString
             UserDefaults.standard.set(udid, forKey: "MY_UUID")
         }
-        
-        
-        // Use Geofire query with radius to find locations in the area.
-        let center = CLLocation(latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.longitude)
-        var circleQuery = user?.geoFire.query(at: center, withRadius: 1000000000.6)
-        
-        // Query location by region
-        let span = MKCoordinateSpanMake(0.001, 0.001)
-        let region = MKCoordinateRegionMake(center.coordinate, span)
-        let regionQuery = user?.geoFire.query(with: region)
-        
-        var queryHandle = regionQuery?.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
-            print("Key '\(key)' entered the search area and is at location '\(location)'")
-        })
-        
-        regionQuery?.observeReady({
-            print("All initial data has been loaded and events have been fired!")
-            
-        })
-        
-        
-        self.placeAnnotations()
     
     }
     
     func placeAnnotations() -> Void {
-        guard let user = self.user else {return}
-        self.dataManager = DataManager(user: user)
-        guard let dataAnnotations = self.dataManager?.dataAnnotations() else { return }
-        var annotationArray: [MKAnnotation] = dataAnnotations
-        self.dataManager?.locateCafe.fetchCafeData { (cafeAnnotation) in
-            annotationArray.append(cafeAnnotation)
-        }
-        self.mainMapView.addAnnotations(annotationArray)
-        self.mainMapView.showAnnotations(annotationArray, animated: true)
+        self.dataManager?.dataAnnotations(completion: { (annotationArray) in
+            self.dataManager?.locateCafe?.fetchCafeData { (cafeAnnotation) in
+                self.mainMapView.addAnnotation(cafeAnnotation)
+            }
+            self.mainMapView.addAnnotations(annotationArray)
+            self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+        })
         
         print("ODFKSODKSOFSDKSOFOSDKFOSDOS")
         print(#line, self.mainMapView.annotations.count)
