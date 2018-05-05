@@ -50,7 +50,9 @@
                         <outlet property="meetCounter" destination="1eX-mO-2RT" id="s4W-bo-arc"/>
                         <outlet property="profileView" destination="eAj-6H-K6S" id="nyl-JA-UoZ"/>
                         <outlet property="searchingView" destination="pZW-QX-F79" id="oQP-EU-yNt"/>
+                        <outlet property="startTalkingButton" destination="hyE-fQ-Dxw" id="eZX-ZZ-akQ"/>
                         <outlet property="talkingView" destination="SlF-x3-muR" id="aA8-mt-qlr"/>
+                        <outlet property="topicTextView" destination="SXx-hv-8ry" id="Sef-vR-d6G"/>
                         <segue destination="MCM-4c-Kwb" kind="show" identifier="timerSegue" id="ViI-YJ-JGQ"/>
                     </connections>
                 </viewController>
@@ -162,12 +164,18 @@
                         <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" insetsLayoutMarginsFromSafeArea="NO" image="purpleBackground" translatesAutoresizingMaskIntoConstraints="NO" id="Mka-8F-bGS">
                             <rect key="frame" x="0.0" y="0.0" width="240" height="360"/>
                         </imageView>
-                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hyE-fQ-Dxw">
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hyE-fQ-Dxw">
                             <rect key="frame" x="60" y="246" width="120" height="69"/>
+                            <accessibility key="accessibilityConfiguration">
+                                <accessibilityTraits key="traits" button="YES" notEnabled="YES"/>
+                            </accessibility>
                             <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
                             <state key="normal" title="START" backgroundImage="buttonBackground">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
+                            <connections>
+                                <action selector="handleStartTalking:" destination="BYZ-38-t0r" eventType="touchUpInside" id="miC-GX-tKt"/>
+                            </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="km" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3sX-gX-TuM">
                             <rect key="frame" x="167" y="3.0000000000000009" width="70" height="14.333333333333336"/>
@@ -184,7 +192,7 @@
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Suggested Topic: If you could meet any living person for a chat over a shared dinner, who would you pick and why?" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="SXx-hv-8ry">
+                        <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Suggested Topic: If you could meet any living person for a chat over a shared dinner, who would you pick and why?" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="SXx-hv-8ry">
                             <rect key="frame" x="10" y="141" width="220" height="100"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>

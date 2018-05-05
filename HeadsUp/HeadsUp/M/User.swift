@@ -26,7 +26,7 @@ class User: NSObject, MKAnnotation {
         self.geoFire = GeoFire(firebaseRef: self.geofireRef.child("User_Location"))
     }
     
-    func saveLocGeoFire(uuid: String) {
+    func saveLocGeoFire(uuid: String, latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
         self.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
             if snapshot.hasChild(uuid){
                 
@@ -38,7 +38,7 @@ class User: NSObject, MKAnnotation {
             }
         }
         
-        geoFire.setLocation(CLLocation(latitude: self.coordinate.latitude, longitude: self.coordinate.longitude), forKey: uuid) { (error) in
+        geoFire.setLocation(CLLocation(latitude: latitude, longitude: longitude), forKey: uuid) { (error) in
             if (error != nil) {
                 print("An error occured: \(error)")
             } else {

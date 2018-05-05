@@ -37,6 +37,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         print("remove key")
         geoFire.setLocation(CLLocation(latitude: 0, longitude: 0), forKey: uuid)
+        geofireRef.child("Users").child(uuid).child("agreedToMeet").removeValue()
+
 
     }
 
@@ -56,6 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("remove key")
 
         geoFire.setLocation(CLLocation(latitude: 0, longitude: 0), forKey: uuid)
+        geofireRef.child("Users").child(uuid).child("agreedToMeet").removeValue()
 
     }
 
