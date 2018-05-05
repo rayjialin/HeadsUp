@@ -17,6 +17,8 @@ class User: NSObject, MKAnnotation {
     var matchedUserUUID: String?
     var geofireRef: DatabaseReference
     var geoFire: GeoFire
+    var isObserving = false
+    var isStarted = false
     
     init(name: String, coordinate: CLLocationCoordinate2D) {
         self.name = name;

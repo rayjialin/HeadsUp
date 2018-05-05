@@ -16,7 +16,6 @@ extension CLLocationCoordinate2D {
 }
 
 class MatchUsers: NSObject {
-    
     class func findClosestUser(user: User, userArray: [User]) -> User? {
          var shortestDistance = user.coordinate.distance(from: userArray[0].coordinate)
         var matchedUser = userArray[0];

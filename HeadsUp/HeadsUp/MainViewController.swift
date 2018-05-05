@@ -19,7 +19,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var currentLocation: CLLocation = CLLocation()
     var user: User?
     var uuid: String?
-    var isObserving = 0
+    var matchedUserUUID = ""
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -39,8 +39,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
-        
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -57,6 +55,13 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         let span: MKCoordinateSpan = MKCoordinateSpanMake(0.01, 0.01)
         let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
         self.mainMapView.setRegion(region, animated: true)
+        
+        if profileView.isHidden == false{
+        setupMeetObserver()
+        }
+        if talkingView.isHidden == false{
+            setupStartObserver()
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -64,22 +69,24 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         print("here")
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
             // Use it...
-            //self.user?.saveLocGeoFire(uuid: udid, latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.longitude)
-            
             self.user?.saveLocGeoFire(uuid: udid)
             Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude as Any, "1" : manager.location?.coordinate.longitude as Any])
-            
+            self.user?.saveLocGeoFire(uuid: udid)
+     
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
+                print(snapshot)
                 let value = snapshot.value as? NSDictionary
                 
                 // Use Geofire query with radius to find locations in the area.
                 guard let managerLocation = manager.location?.coordinate else { return }
                 let center = CLLocation(latitude: managerLocation.latitude, longitude: managerLocation.longitude)
+
                 let geoFire = GeoFire(firebaseRef: Database.database().reference(withPath: "User_Location"))
-                let circleQuery = geoFire.query(at: center, withRadius: 10.6)
+                let circleQuery = geoFire.query(at: center, withRadius: 5.0)
                 
                 var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
+                    
                     //print("Key '\(key)' entered the search area and is at location '\(location)'")
                     if udid != key {
                         guard let userDict = value else {return}
@@ -92,9 +99,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
+                            self.searchingView.isHidden = true
                             
+                            self.placeAnnotations()
                             // listen to matched users action
-                            self.actionObserver()
                             self.placeAnnotations()
                         })
                     }
@@ -117,6 +125,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 circleQuery.observeReady({
                     print("All initial data has been loaded and events have been fired!")
                 })
+
                 
                 
             })
@@ -129,31 +138,31 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     func placeAnnotations() -> Void {
-            self.dataManager?.dataAnnotations(completion: { (annotationArray) in
-                if self.mainMapView.annotations.count < 4 {
-                    self.mainMapView.addAnnotations(annotationArray)
-                }
-                print("-----\(self.mainMapView.annotations)")
-                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-            })
-            
-            
-            /*
-             * Enables all annotations to fit on the screen.
-             * code taken from https://gist.github.com/andrewgleave/915374
-             */
-            
-            var zoomRect: MKMapRect = MKMapRectNull
-            for annotation in self.mainMapView.annotations {
-                let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
-                let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
-                if (MKMapRectIsNull(zoomRect)) {
-                    zoomRect = pointRect
-                } else {
-                    zoomRect = MKMapRectUnion(zoomRect, pointRect)
-                }
+        self.dataManager?.dataAnnotations(completion: { (annotationArray) in
+            if self.mainMapView.annotations.count < 4 {
+                self.mainMapView.addAnnotations(annotationArray)
             }
-            self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
+            print("-----\(self.mainMapView.annotations)")
+            self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+        })
+        
+        
+        /*
+         * Enables all annotations to fit on the screen.
+         * code taken from https://gist.github.com/andrewgleave/915374
+         */
+        
+        var zoomRect: MKMapRect = MKMapRectNull
+        for annotation in self.mainMapView.annotations {
+            let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
+            let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
+            if (MKMapRectIsNull(zoomRect)) {
+                zoomRect = pointRect
+            } else {
+                zoomRect = MKMapRectUnion(zoomRect, pointRect)
+            }
+        }
+        self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
     }
     
     
@@ -199,25 +208,22 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                     // update current user button state
                     self.meetButton.alpha = 0.4
                     self.meetButton.isEnabled = false
-                    self.isObserving = 1
+                    self.user?.isObserving = true
                     
                     if let matchedUserUUID = self.user?.matchedUserUUID{
-                        if snapshot.hasChild(uuid){
-                            if snapshot.childSnapshot(forPath: matchedUserUUID).hasChild("agreedToMeet"){
-                                let value = snapshot.childSnapshot(forPath: matchedUserUUID).value as? NSDictionary
-                                guard let userDict = value else {return}
-                                if let agreedToMeet = userDict["agreedToMeet"] as? Bool{
-                                    if agreedToMeet == true{
-                                        self.profileView.removeFromSuperview()
-                                        self.view.addSubview(self.talkingView)
-                                        ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-                                    }
+                        if snapshot.childSnapshot(forPath: matchedUserUUID).hasChild("agreedToMeet"){
+                            let value = snapshot.childSnapshot(forPath: matchedUserUUID).value as? NSDictionary
+                            guard let userDict = value else {return}
+                            if let agreedToMeet = userDict["agreedToMeet"] as? Bool{
+                                if agreedToMeet == true{
+                                    self.profileView.removeFromSuperview()
+                                    self.view.addSubview(self.talkingView)
+                                    ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+                                    self.profileView.isHidden = true
                                 }
-                                
                             }
                             
                         }
-                        
                     }
                 }
             }
@@ -225,34 +231,69 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     
-    // track the agreedToMeet state on firebase
-    func actionObserver(){
-        if isObserving == 1 {
-            guard let matchedUserUUID = self.user?.matchedUserUUID else {return}
-            self.user?.geofireRef.child("Users").child(matchedUserUUID).child("agreedToMeet").observe(.value , with: {snapshot in
-                let agreedToMeet = snapshot.value as? Bool
-                //
-                if agreedToMeet == true{
-                    self.profileView.removeFromSuperview()
-                    self.view.addSubview(self.talkingView)
-                    ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+    
+    func setupMeetObserver(){
+        
+        self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
+            guard let matchedUser = self.user?.matchedUserUUID else {return}
+            
+            guard let agreedToMeet = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToMeet").value as? Bool else {return}
+            
+            if agreedToMeet == true && self.user?.isObserving == true{
+                self.profileView.removeFromSuperview()
+                self.view.addSubview(self.talkingView)
+                ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+                self.profileView.isHidden = true
+
+            }
+        })
+    }
+    
+    func setupStartObserver(){
+        
+        self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
+            guard let matchedUser = self.user?.matchedUserUUID else {return}
+            
+            guard let agreedToStart = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToStart").value as? Bool else {return}
+            
+            if agreedToStart == true && self.user?.isStarted == true{
+                self.performSegue(withIdentifier: "timerSegue", sender: self)
+            }
+        })
+    }
+    
+    // when users met up, enable the start talking button to start the timer
+    @IBAction func handleStartTalking(_ sender: UIButton) {
+        
+        // add property to user on firebase to set "agreeToMeet" condition to True
+        if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String{
+            self.user?.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
+                if snapshot.hasChild(uuid){
+                    self.user?.geofireRef.child("Users").child(uuid).updateChildValues(["agreedToStart": true])
+                    
+                    // update current user button state
+                    self.startTalkingButton.alpha = 0.4
+                    self.startTalkingButton.isEnabled = false
+                    self.user?.isStarted = true
+                    
+                    if let matchedUserUUID = self.user?.matchedUserUUID{
+                        if snapshot.childSnapshot(forPath: matchedUserUUID).hasChild("agreedToStart"){
+                            let value = snapshot.childSnapshot(forPath: matchedUserUUID).value as? NSDictionary
+                            guard let userDict = value else {return}
+                            if let agreedToStart = userDict["agreedToStart"] as? Bool{
+                                if agreedToStart == true{
+                                    self.performSegue(withIdentifier: "timerSegue", sender: self)
+                                }
+                            }
+                            
+                        }
+                    }
                 }
-            })
+            }
         }
         
     }
     
     
     
-    
-    // when users met up, enable the start talking button to start the timer
-    @IBAction func handleStartTalking(_ sender: UIButton) {
-        
-        
-    }
-    
-    
-    
 }
-
-
