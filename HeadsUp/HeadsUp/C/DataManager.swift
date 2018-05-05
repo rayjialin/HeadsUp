@@ -28,8 +28,8 @@ class DataManager: NSObject {
         if !self.usersArray.contains(newUser) {
             self.usersArray.append(newUser)
         }
-        guard let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: usersArray) else { return }
-        self.closestUser = closestUser
+//        guard let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: usersArray) else { return }
+//        self.closestUser = closestUser
 //        self.currentUser.matchedUserUUID = self.closestUser
         
     }
@@ -37,6 +37,7 @@ class DataManager: NSObject {
     func findClosestUser(completion: @escaping (_ completion: User ) -> Void) {
         if let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: self.usersArray) {
             DispatchQueue.main.async {
+                self.closestUser = closestUser
                 completion(closestUser)
             }
         }
