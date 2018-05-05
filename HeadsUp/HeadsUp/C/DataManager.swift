@@ -25,30 +25,45 @@ class DataManager: NSObject {
     }
     
     func addNearbyUser(newUser: User) {
-        self.usersArray.append(newUser)
+        if !self.usersArray.contains(newUser) {
+            self.usersArray.append(newUser)
+        }
         guard let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: usersArray) else { return }
         self.closestUser = closestUser
 //        self.currentUser.matchedUserUUID = self.closestUser
         
     }
     
+    func findClosestUser(completion: @escaping (_ completion: User ) -> Void) {
+        if let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: self.usersArray) {
+            DispatchQueue.main.async {
+                completion(closestUser)
+            }
+        }
+    }
+    
     
     func dataAnnotations(completion: @escaping (_ completion: [MKAnnotation] ) -> Void) {
         var array = [MKAnnotation]()
-        if let closestUser = self.closestUser {
+        self.findClosestUser { (closestUser) in
             print("appending closest user annotation")
             array.append(closestUser)
             
             self.locateCafe = LocateCafe(currentUser: self.currentUser, otherUser: closestUser)
-            if let locateCafe = self.locateCafe {
-                print("appending locateCafe annotation")
-                array.append(locateCafe)
+            if let midpoint = self.locateCafe {
+                
+                print("appending midpoint annotation")
+                array.append(midpoint)
+                
+                midpoint.fetchCafeData { (cafeAnnotation) in
+                    print("appending midpoint annotation")
+                    array.append(cafeAnnotation)
+                    DispatchQueue.main.async {
+                        completion(array)
+                    }
+                }
             }
         }
-        DispatchQueue.main.async {
-            completion(array)
-        }
-        //return array
     }
     
 

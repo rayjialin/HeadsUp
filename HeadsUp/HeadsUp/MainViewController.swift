@@ -39,7 +39,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -66,34 +65,36 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
         print("here")
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
             // Use it...
             self.user?.saveLocGeoFire(uuid: udid)
-            
-            Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude,
-                                                                                                             "1" : manager.location?.coordinate.longitude])
+            Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude as Any, "1" : manager.location?.coordinate.longitude as Any])
+            self.user?.saveLocGeoFire(uuid: udid)
+     
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
                 print(snapshot)
                 let value = snapshot.value as? NSDictionary
                 
                 // Use Geofire query with radius to find locations in the area.
-                let center = CLLocation(latitude: (manager.location?.coordinate.latitude)!, longitude: (manager.location?.coordinate.longitude)!)
+                guard let managerLocation = manager.location?.coordinate else { return }
+                let center = CLLocation(latitude: managerLocation.latitude, longitude: managerLocation.longitude)
+
                 let geoFire = GeoFire(firebaseRef: Database.database().reference(withPath: "User_Location"))
-                let circleQuery = geoFire.query(at: center, withRadius: 0.6)
+                let circleQuery = geoFire.query(at: center, withRadius: 5.0)
                 
                 var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
                     
                     //print("Key '\(key)' entered the search area and is at location '\(location)'")
-                    //                    if self.currentLocation.coordinate.latitude != location.coordinate.latitude && self.currentLocation.coordinate.longitude != location.coordinate.longitude {
-                    if udid != key{
+                    if udid != key {
                         guard let userDict = value else {return}
                         guard let singleDict = userDict[key] as? NSDictionary else {return}
                         guard let name = singleDict["name"] as? String else {return}
                         let nearbyUser = User(name: name, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
-                        if self.dataManager?.closestUser != nil {
+                        self.dataManager?.findClosestUser(completion: { (closestUser) in
                             self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
@@ -102,35 +103,29 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             
                             self.placeAnnotations()
                             // listen to matched users action
-                            
-                            //                            DispatchQueue.main.async { [unowned self] in
-                            //                                self.actionObserver()
-                            //                            }
-                            
-                            
-                        }
-                        //                        self.placeAnnotations()
+                            self.placeAnnotations()
+                        })
                     }
                 })
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
-                    print("Key '\(key)' entered the search area and is at location '\(location)'")
-                    
-                })
-                //                circleQuery.obs
-                circleQuery.observeReady({
-                    print("All initial data has been loaded and events have been fired!")
-                    if self.dataManager?.closestUser != nil {
-                        print("updating annotation")
-                        //                        //print(#line, location.coordinate)
-                        //                        self.mainMapView.removeAnnotation((self.dataManager?.closestUser)!)
-                        //                        self.mainMapView.addAnnotation((self.dataManager?.closestUser)!)
-                        //                        self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-                        //self.placeAnnotations()
+                   // print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    if self.user?.matchedUserUUID == key {
+                        self.dataManager?.findClosestUser(completion: { (closestUser) in
+                            closestUser.coordinate = location.coordinate
+                            self.mainMapView.removeAnnotation(closestUser)
+                            self.mainMapView.addAnnotation(closestUser)
+                            
+                           // print("\(self.mainMapView.annotations) --- - - --")
+                            self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                        })
                     }
                     
                 })
-                //                let closeCircleeQuery = geoFire.query(at: center, withRadius: 0.05)
+                circleQuery.observeReady({
+                    print("All initial data has been loaded and events have been fired!")
+                })
+
                 
                 
             })
@@ -143,38 +138,31 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     func placeAnnotations() -> Void {
-        if self.mainMapView.annotations.count < 4 {
-            self.dataManager?.dataAnnotations(completion: { (annotationArray) in
-                self.dataManager?.locateCafe?.fetchCafeData { (cafeAnnotation) in
-                    self.mainMapView.addAnnotation(cafeAnnotation)
-                }
+        self.dataManager?.dataAnnotations(completion: { (annotationArray) in
+            if self.mainMapView.annotations.count < 4 {
                 self.mainMapView.addAnnotations(annotationArray)
-                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-            })
-            
-            /*
-             * Enables all annotations to fit on the screen.
-             * code taken from https://gist.github.com/andrewgleave/915374
-             */
-            
-            var zoomRect: MKMapRect = MKMapRectNull
-            for annotation in self.mainMapView.annotations {
-                let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
-                let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
-                if (MKMapRectIsNull(zoomRect)) {
-                    zoomRect = pointRect
-                } else {
-                    zoomRect = MKMapRectUnion(zoomRect, pointRect)
-                }
             }
-            self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
-        }
-        if let closestUser = self.dataManager?.closestUser {
-            self.mainMapView.removeAnnotation(closestUser)
-            self.mainMapView.addAnnotation(closestUser)
-            
+            print("-----\(self.mainMapView.annotations)")
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+        })
+        
+        
+        /*
+         * Enables all annotations to fit on the screen.
+         * code taken from https://gist.github.com/andrewgleave/915374
+         */
+        
+        var zoomRect: MKMapRect = MKMapRectNull
+        for annotation in self.mainMapView.annotations {
+            let annotationPoint = MKMapPointForCoordinate(annotation.coordinate)
+            let pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1)
+            if (MKMapRectIsNull(zoomRect)) {
+                zoomRect = pointRect
+            } else {
+                zoomRect = MKMapRectUnion(zoomRect, pointRect)
+            }
         }
+        self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
     }
     
     
@@ -192,9 +180,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
         
         if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
+            //print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
+            //print(annotation.coordinate)
             annotationView?.image = UIImage(named: "userAnnotation")
         }
         if let midpointAnnotation = annotation as? LocateCafe {
+           // print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
             annotationView?.image = UIImage(named: "midpointAnnotation")
         }
         if let restaurantAnnotation = annotation as? CafeModel {
@@ -271,24 +262,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         })
     }
     
-    // track the agreedToMeet state on firebase
-    func actionObserver(){
-        self.user?.geofireRef.child("Users").observe(.value , with: {snapshot in
-            let agreedToMeet = snapshot.childSnapshot(forPath: "agreedToMeet").value as? Bool
-            //
-            if agreedToMeet == true && self.user?.isObserving == true {
-                self.profileView.removeFromSuperview()
-                self.view.addSubview(self.talkingView)
-                ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-            }
-        })
-        //        }
-        
-    }
-    
-    
-    
-    
     // when users met up, enable the start talking button to start the timer
     @IBAction func handleStartTalking(_ sender: UIButton) {
         
@@ -319,35 +292,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             }
         }
         
-        
-        //        if self.user?.isStarted == true{
-        //            guard let matchedUserUUID = self.user?.matchedUserUUID else {return}
-        //            self.user?.geofireRef.child("Users").child(matchedUserUUID).child("agreedTostart").observe(.value, with: { (snapshot) in
-        //                let agreedToStart = snapshot.value as? Bool
-        //
-        //                if agreedToStart == true{
-        //
-        //                    self.performSegue(withIdentifier: "timerSegue", sender: self)
-        //                }
-        //            })
-        //
-        //        }else {
-        //            guard let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String else {return}
-        //            self.user?.isStarted = true
-        //            self.user?.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
-        //                if snapshot.hasChild(uuid){
-        //                    self.user?.geofireRef.child("Users").child(uuid).updateChildValues(["agreedToStart": true])
-        //
-        //                }
-        //
-        //            }
-        //
-        //        }
-        
     }
-    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    //        <#code#>
-    //    }
     
     
     

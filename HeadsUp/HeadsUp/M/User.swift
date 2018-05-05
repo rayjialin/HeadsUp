@@ -32,8 +32,6 @@ class User: NSObject, MKAnnotation {
         self.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
             if snapshot.hasChild(uuid){
                 
-                print("true uuid exist")
-                
             } else {
                 self.geofireRef.child("Users").child(uuid).updateChildValues(["name": self.name])
                 print("false uuid doesnt exist")
