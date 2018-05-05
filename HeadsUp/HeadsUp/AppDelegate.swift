@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         FirebaseApp.configure()
         
+        
         return true
     }
 
@@ -38,6 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("remove key")
         geoFire.setLocation(CLLocation(latitude: 0, longitude: 0), forKey: uuid)
         geofireRef.child("Users").child(uuid).child("agreedToMeet").removeValue()
+        geofireRef.child("Users").child(uuid).child("agreedToStart").removeValue()
 
 
     }
@@ -59,6 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         geoFire.setLocation(CLLocation(latitude: 0, longitude: 0), forKey: uuid)
         geofireRef.child("Users").child(uuid).child("agreedToMeet").removeValue()
+        geofireRef.child("Users").child(uuid).child("agreedToStart").removeValue()
 
     }
 
