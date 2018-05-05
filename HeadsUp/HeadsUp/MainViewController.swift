@@ -18,19 +18,17 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
-    var restaurantAnnotation: LocateCafe?
     var uuid: String?
     var isObserving = 0
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
     @IBOutlet var profileView: UIView!
-    @IBOutlet var waitingView: UIView!
-    //    @IBOutlet var startTalkingView: UIView!
     @IBOutlet var talkingView: UIView!
-    @IBOutlet var timerView: UIView!
     @IBOutlet weak var meetButton: UIButton!
     @IBOutlet weak var meetCounter: UILabel!
+    @IBOutlet weak var topicTextView: UITextView!
+    @IBOutlet weak var startTalkingButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +39,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+//        self.user?.geofireRef.child("User_Location").observe(.value, options: <#T##NSKeyValueObservingOptions#>, changeHandler: <#T##(DatabaseReference, NSKeyValueObservedChange<Value>) -> Void#>)
         
         
     }
@@ -65,7 +65,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         print("here")
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
             // Use it...
-            self.user?.saveLocGeoFire(uuid: udid)
+            self.user?.saveLocGeoFire(uuid: udid, latitude: self.currentLocation.coordinate.latitude, longitude: self.currentLocation.coordinate.longitude)
             
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -77,7 +77,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 let circleQuery = geoFire.query(at: center, withRadius: 10.6)
                 
                 var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
-                    print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    //print("Key '\(key)' entered the search area and is at location '\(location)'")
                     if self.currentLocation.coordinate.latitude != location.coordinate.latitude && self.currentLocation.coordinate.longitude != location.coordinate.longitude {
                         guard let userDict = value else {return}
                         guard let singleDict = userDict[key] as? NSDictionary else {return}
@@ -98,10 +98,26 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                     }
                 })
                 
-                circleQuery.observeReady({
-                    print("All initial data has been loaded and events have been fired!")
+                circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
+                    print("Key '\(key)' entered the search area and is at location '\(location)'")
                     
                 })
+//                circleQuery.obs
+                circleQuery.observeReady({
+                    print("All initial data has been loaded and events have been fired!")
+                    if self.dataManager?.closestUser != nil {
+                        print("updating annotation")
+                        //print(#line, location.coordinate)
+                        self.mainMapView.removeAnnotation((self.dataManager?.closestUser)!)
+                        self.mainMapView.addAnnotation((self.dataManager?.closestUser)!)
+                        self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                        //self.placeAnnotations()
+                    }
+
+                })
+//                let closeCircleeQuery = geoFire.query(at: center, withRadius: 0.05)
+                
+                
             })
             
         } else {
@@ -115,7 +131,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         self.dataManager?.dataAnnotations(completion: { (annotationArray) in
             self.dataManager?.locateCafe?.fetchCafeData { (cafeAnnotation) in
                 self.mainMapView.addAnnotation(cafeAnnotation)
-                self.restaurantAnnotation = cafeAnnotation as? LocateCafe
             }
             self.mainMapView.addAnnotations(annotationArray)
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
@@ -154,12 +169,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
         
         if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
-            annotationView?.image = UIImage(named: "userAnnotation-2")
+            annotationView?.image = UIImage(named: "userAnnotation")
         }
         if let midpointAnnotation = annotation as? LocateCafe {
             annotationView?.image = UIImage(named: "midpointAnnotation")
         }
-        if let restaurantAnnotation = annotation as? LocateCafe, self.restaurantAnnotation == annotation as? LocateCafe {
+        if let restaurantAnnotation = annotation as? CafeModel {
             annotationView?.image = UIImage(named: "restaurantAnnotation")
         }
         
@@ -205,8 +220,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     
+    // track the agreedToMeet state on firebase
     func actionObserver(){
-        // track the agreedToMeet state on firebase
         if isObserving == 1{
             guard let matchedUserUUID = self.user?.matchedUserUUID else {return}
             self.user?.geofireRef.child("Users").child(matchedUserUUID).child("agreedToMeet").observe(.value , with: {snapshot in
@@ -221,6 +236,17 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
         
     }
+    
+    
+    
+    
+    // when users met up, enable the start talking button to start the timer
+    @IBAction func handleStartTalking(_ sender: UIButton) {
+        
+        
+    }
+    
+    
 
 }
     
