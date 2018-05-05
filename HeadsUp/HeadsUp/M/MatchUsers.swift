@@ -26,13 +26,12 @@ class MatchUsers: NSObject {
             
             if (shortestDistance >  (selfDistance.distance(from: otherUser.coordinate))) {
                 shortestDistance = (selfDistance.distance(from: otherUser.coordinate))
-                print(shortestDistance)
                 //print("Matched user before: \(String(describing: matchedUser))")
                 matchedUser = otherUser
                 //print("Matched user after: \(String(describing: matchedUser ?? nil))")
             }
         }
-        print("Matched user outside: \(String(describing: matchedUser))")
+        //print("Matched user outside: \(String(describing: matchedUser))")
         return matchedUser
     }
     
