@@ -46,6 +46,8 @@
                     <connections>
                         <outlet property="defaultView" destination="Nz3-19-tQl" id="muu-Qd-Ut9"/>
                         <outlet property="mainMapView" destination="wVe-1U-qkV" id="pHH-Pc-tYx"/>
+                        <outlet property="meetButton" destination="USD-sI-X9K" id="p0F-Dm-Njd"/>
+                        <outlet property="meetCounter" destination="1eX-mO-2RT" id="s4W-bo-arc"/>
                         <outlet property="profileView" destination="eAj-6H-K6S" id="nyl-JA-UoZ"/>
                         <outlet property="searchingView" destination="pZW-QX-F79" id="oQP-EU-yNt"/>
                         <outlet property="talkingView" destination="SlF-x3-muR" id="aA8-mt-qlr"/>
@@ -120,6 +122,9 @@
                             <state key="normal" title="MEET" backgroundImage="buttonBackground">
                                 <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </state>
+                            <connections>
+                                <action selector="startMeeting:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ywr-28-Xr6"/>
+                            </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1eX-mO-2RT">
                             <rect key="frame" x="107" y="305.66666666666669" width="26" height="14.333333333333314"/>
