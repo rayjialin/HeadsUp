@@ -129,9 +129,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     func placeAnnotations() -> Void {
-        //if self.mainMapView.annotations.count < 4 {
             self.dataManager?.dataAnnotations(completion: { (annotationArray) in
-                self.mainMapView.addAnnotations(annotationArray)
+                if self.mainMapView.annotations.count < 4 {
+                    self.mainMapView.addAnnotations(annotationArray)
+                }
                 print("-----\(self.mainMapView.annotations)")
                 self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
             })
@@ -175,7 +176,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             annotationView?.image = UIImage(named: "userAnnotation")
         }
         if let midpointAnnotation = annotation as? LocateCafe {
-            print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
+           // print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
             annotationView?.image = UIImage(named: "midpointAnnotation")
         }
         if let restaurantAnnotation = annotation as? CafeModel {
