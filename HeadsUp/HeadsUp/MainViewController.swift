@@ -237,11 +237,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                     self.view.addSubview(self.talkingView)
                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 }
-                //                else {
-                //                    self.talkingView.removeFromSuperview()
-                //                    self.view.addSubview(self.searchingView)
-                //                    ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
-                //                }
             })
         }
         
