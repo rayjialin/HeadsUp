@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		33EB3C95F0FD992DE5BCFE06 /* Pods_HeadsUp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68354E27191E1AA5D1FE75C /* Pods_HeadsUp.framework */; };
 		38467D32209D604400F17EBE /* TimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38467D31209D604400F17EBE /* TimerViewController.swift */; };
+		7AD75F8B209EB1C5007B41B4 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */; };
 		7AE64C28209A393000288B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C27209A393000288B91 /* AppDelegate.swift */; };
 		7AE64C2D209A393000288B91 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7AE64C2B209A393000288B91 /* Main.storyboard */; };
 		7AE64C2F209A393100288B91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7AE64C2E209A393100288B91 /* Assets.xcassets */; };
@@ -26,6 +27,7 @@
 
 /* Begin PBXFileReference section */
 		38467D31209D604400F17EBE /* TimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewController.swift; sourceTree = "<group>"; };
+		7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
 		7AE64C24209A393000288B91 /* HeadsUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadsUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AE64C27209A393000288B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AE64C2C209A393000288B91 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 			children = (
 				7AE64C3D209A3F0000288B91 /* MainViewController.swift */,
 				38467D31209D604400F17EBE /* TimerViewController.swift */,
+				7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */,
 				7AE64C4F209AB9CD00288B91 /* ViewLayoutConstraint.h */,
 				7AE64C50209AB9CD00288B91 /* ViewLayoutConstraint.m */,
 			);
@@ -333,6 +336,7 @@
 				7AE64C4A209A611600288B91 /* MatchUsers.swift in Sources */,
 				7AE64C48209A5AD900288B91 /* User.swift in Sources */,
 				7AE64C28209A393000288B91 /* AppDelegate.swift in Sources */,
+				7AD75F8B209EB1C5007B41B4 /* ReviewViewController.swift in Sources */,
 				7AE64C46209A43C200288B91 /* NetworkManager.m in Sources */,
 				7AE64C51209AB9CD00288B91 /* ViewLayoutConstraint.m in Sources */,
 				7AE64C42209A419700288B91 /* CafeModel.swift in Sources */,
