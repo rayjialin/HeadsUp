@@ -132,9 +132,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 circleQuery.observeReady({
                     print("All initial data has been loaded and events have been fired!")
                 })
-
-                
-                
             })
             
         } else {
