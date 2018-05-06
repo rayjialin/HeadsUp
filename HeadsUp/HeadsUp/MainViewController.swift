@@ -19,7 +19,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
-//    var uuid: String?
+    //    var uuid: String?
     var image: UIImage? = UIImage()
     var name = String()
     var email = String()
@@ -49,8 +49,21 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
         
-//        let createUserProfile = CreateUserProfile()
         createUserProfile()
+        
+        if let imageUrl = self.dataManager?.closestUser?.profileImageUrl{
+            MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
+                if let error = error{
+                    print(error)
+                }
+                DispatchQueue.main.async {
+                    self.startProfileImageView.image = UIImage(data: data!)
+                    self.startProfileImageView.contentMode = .scaleAspectFit
+                    self.meetProfileImageView.image = UIImage(data: data!)
+                    self.meetProfileImageView.contentMode = .scaleAspectFit
+                }
+            })
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -113,10 +126,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         guard let phoneNUmber = singleDict["phoneNumber"] as? String else {return}
                         guard let email = singleDict["email"] as? String else {return}
                         guard let profileImage = singleDict["profileImage"] as? String else {return}
-                        //                        let nearbyUser = User(name: name, coordinate: location.coordinate)
-//                        let nearbyUser = User(name: name, email: email, profileImageUrl: profileImage, phoneNumber: phoneNUmber, coordinate: location.coordinate)
-                        let nearbyUser = User(name: name, email: nil, profileImageUrl: nil, phoneNumber: nil, coordinate: location.coordinate)
+                        let nearbyUser = User(name: name, email: email, profileImageUrl: profileImage, phoneNumber: phoneNUmber, coordinate: location.coordinate)
+                        //                        let nearbyUser = User(name: name, email: nil, profileImageUrl: nil, phoneNumber: nil, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
+                        
                         self.dataManager?.findClosestUser(completion: { (closestUser) in
                             self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
                             self.searchingView.removeFromSuperview()
@@ -256,6 +269,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.view.addSubview(self.talkingView)
                                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                                     self.startNameLabel.text = self.dataManager?.closestUser?.name
+                                    
+                                    
                                 }
                             }
                         }
@@ -280,19 +295,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
                 self.displayRandomTopic()
-                
-                if let imageUrl = self.dataManager?.closestUser?.profileImageUrl{
-//                    let createUserProfile = CreateUserProfile()
-                    MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
-                        if let error = error{
-                            print(error)
-                        }
-                        DispatchQueue.main.async {
-                            self.meetProfileImageView.image = UIImage(data: data!)
-                            self.meetProfileImageView.contentMode = .scaleAspectFit
-                        }
-                    })
-                }
             }
         })
     }
@@ -308,18 +310,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             if agreedToStart == true && self.user?.isStarted == true{
                 self.performSegue(withIdentifier: "timerSegue", sender: self)
                 
-                if let imageUrl = self.dataManager?.closestUser?.profileImageUrl{
-//                    let createUserProfile = CreateUserProfile()
-                    MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
-                        if let error = error{
-                            print(error)
-                        }
-                        DispatchQueue.main.async {
-                            self.startProfileImageView.image = UIImage(data: data!)
-                            self.startProfileImageView.contentMode = .scaleAspectFit
-                        }
-                    })
-                }
             }
         })
     }
@@ -394,25 +384,25 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             guard let image = image else {return}
             let imageName = NSUUID().uuidString
             let storageRef = Storage.storage().reference().child("\(imageName).png")
-    
+            
             if let uploadData = UIImagePNGRepresentation(image){
                 storageRef.putData(uploadData, metadata: nil) { (metadata, error) in
                     if let error = error{
                         print(error)
                         return
                     }
-    
+                    
                     if let profileImageUrl = metadata?.downloadURL()?.absoluteString {
                         self.user?.profileImageUrl = profileImageUrl
                         self.user?.name = self.name
                         self.user?.email = self.email
                         self.user?.phoneNumber = self.phoneNumber
-    
+                        
                         UserDefaults.standard.set(profileImageUrl, forKey: "ProfileimageUrl")
                         UserDefaults.standard.set(self.email, forKey: "email")
                         UserDefaults.standard.set(self.phoneNumber, forKey: "phoneNumber")
                         UserDefaults.standard.set(self.name, forKey: "name")
-    
+                        
                         let userRef = Database.database().reference().child("Users").child(uuid)
                         userRef.updateChildValues(["name": self.user?.name])
                         userRef.updateChildValues(["email": self.user?.email])
