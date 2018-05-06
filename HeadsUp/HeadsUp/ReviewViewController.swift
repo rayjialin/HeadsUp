@@ -9,14 +9,15 @@
 import UIKit
 
 class ReviewViewController: UIViewController, UITextViewDelegate {
-
+    
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var nameLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        nameLabel.text = "Ray"
+        let closestUser = UserDefaults.standard.value(forKey: "CLOSEST_USER") as! String
+        self.nameLabel.text = closestUser
         
         textView.delegate = self
         textView.text = "How was your conversation? Write notes to save for later."
@@ -24,6 +25,13 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
         
         textView.becomeFirstResponder()
         textView.selectedTextRange = textView.textRange(from: textView.beginningOfDocument, to: textView.beginningOfDocument)
+        
+        let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(tapped))
+        self.view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func tapped() {
+        self.view.endEditing(true);
     }
     
     /*

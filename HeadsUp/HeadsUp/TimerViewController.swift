@@ -16,13 +16,14 @@ class TimerViewController: UIViewController {
     var timer = Timer()
     var isTimerRunning = true
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-    runTimer()
+        runTimer()
         
     }
+    
     
     func runTimer() {
         self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)

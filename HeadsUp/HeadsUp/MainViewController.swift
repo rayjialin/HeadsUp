@@ -11,7 +11,9 @@ import MapKit
 import GeoFire
 import Firebase
 
+
 class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+    
     
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
@@ -104,6 +106,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             
                             self.meetNameLabel.text = closestUser.name
                             self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                            
+                           UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
                             
                             // Place closestUser, closest Restuarant, and Midpoint annotation
                             self.placeAnnotations()
@@ -255,6 +259,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             }
         })
     }
+
     
     func setupStartObserver(){
         
