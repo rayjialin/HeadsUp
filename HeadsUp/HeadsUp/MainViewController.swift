@@ -10,6 +10,7 @@ import UIKit
 import MapKit
 import GeoFire
 import Firebase
+import FirebaseStorage
 
 class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
@@ -20,6 +21,9 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var user: User?
     var uuid: String?
     var matchedUserUUID = ""
+    var seconds = 5
+    var timer = Timer()
+//    var isTimerRunning = true
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -39,7 +43,26 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+//        guard let data = UIImagePNGRepresentation(#imageLiteral(resourceName: "sun")) else {return}
+//        let storage = Storage.storage()
+//        if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String{
+//            let storageRef = storage.reference().child(uuid)
+//            storageRef.putData(data)
+//        }
+        
+//        let fileData = NSData()
+//        let storageRef = storage.reference().child("myFiles/myFile")
+//        storageRef.putData(fileData).observeStatus(.Success) { (snapshot) in
+//            // When the image has successfully uploaded, we get it's download URL
+//            let downloadURL = snapshot.metadata?.downloadURL()?.absoluteString
+//            // Write the download URL to the Realtime Database
+//            let dbRef = database.reference().child("myFiles/myFile")
+//            dbRef.setValue(downloadURL)
+//        }
+        
     }
+    
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == CLAuthorizationStatus.authorizedWhenInUse {
@@ -56,12 +79,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
         self.mainMapView.setRegion(region, animated: true)
         
-        if profileView.isHidden == false{
-        setupMeetObserver()
-        }
-        if talkingView.isHidden == false{
+//        if profileView.isHidden == false{
+            setupMeetObserver()
+//        }
+//        if talkingView.isHidden == false{
             setupStartObserver()
-        }
+//        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -72,7 +95,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             self.user?.saveLocGeoFire(uuid: udid)
             Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude as Any, "1" : manager.location?.coordinate.longitude as Any])
             self.user?.saveLocGeoFire(uuid: udid)
-     
+            
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
                 //print(snapshot)
@@ -81,7 +104,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 // Use Geofire query with radius to find locations in the area.
                 guard let managerLocation = manager.location?.coordinate else { return }
                 let center = CLLocation(latitude: managerLocation.latitude, longitude: managerLocation.longitude)
-
+                
                 let geoFire = GeoFire(firebaseRef: Database.database().reference(withPath: "User_Location"))
                 let circleQuery = geoFire.query(at: center, withRadius: 5.0)
                 
@@ -99,7 +122,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
-                            self.searchingView.isHidden = true
+//                            self.searchingView.isHidden = true
                             
                             // Place closestUser, closest Restuarant, and Midpoint annotation
                             self.placeAnnotations()
@@ -108,7 +131,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 })
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
-                   // print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    // print("Key '\(key)' entered the search area and is at location '\(location)'")
                     let geoFire = GeoFire(firebaseRef: Database.database().reference().child("User_Location"))
                     if self.user?.matchedUserUUID == key {
                         geoFire.getLocationForKey(key) { (geoLocation, error) in
@@ -189,7 +212,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             annotationView?.image = UIImage(named: "userAnnotation")
         }
         if let midpointAnnotation = annotation as? LocateCafe {
-           // print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
+            // print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
             annotationView?.image = UIImage(named: "midpointAnnotation")
         }
         if let restaurantAnnotation = annotation as? CafeModel {
@@ -223,7 +246,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.profileView.removeFromSuperview()
                                     self.view.addSubview(self.talkingView)
                                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-                                    self.profileView.isHidden = true
+//                                    self.profileView.isHidden = true
                                 }
                             }
                             
@@ -247,14 +270,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 self.profileView.removeFromSuperview()
                 self.view.addSubview(self.talkingView)
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-                self.profileView.isHidden = true
-
+//                self.profileView.isHidden = true
+                
             }
         })
     }
     
     func setupStartObserver(){
-        
+        meetTimer()
         self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
             guard let matchedUser = self.user?.matchedUserUUID else {return}
             
@@ -298,6 +321,37 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
     }
     
+    func meetTimer(){
+        
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
+        
+    }
     
+    @objc func updateTimer() {
+        if seconds < 1 {
+            timer.invalidate()
+            resetData()
+        } else {
+            seconds -= 1
+            meetCounter.text = timeString(time: TimeInterval(seconds))
+        }
+    }
+    
+    func timeString(time:TimeInterval) -> String {
+        let seconds = Int(time) % 60
+        return String(format:"%01i", seconds)
+    }
+    
+    func resetData(){
+        seconds = 5
+        meetCounter.text = String(seconds)
+        self.dataManager?.usersArray.removeAll()
+        self.user?.matchedUserUUID = ""
+        self.profileView.removeFromSuperview()
+        self.view.addSubview(self.searchingView)
+        ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+        self.mainMapView.removeAnnotations(self.mainMapView.annotations)
+    }
     
 }

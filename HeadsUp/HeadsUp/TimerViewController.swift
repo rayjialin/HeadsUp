@@ -12,7 +12,7 @@ import UIKit
 class TimerViewController: UIViewController {
 
     @IBOutlet weak var timerLabel: UILabel!
-    var seconds = 360
+    var seconds = 5
     var timer = Timer()
     var isTimerRunning = true
     
