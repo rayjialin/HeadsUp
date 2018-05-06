@@ -48,8 +48,10 @@
                         <outlet property="mainMapView" destination="wVe-1U-qkV" id="pHH-Pc-tYx"/>
                         <outlet property="meetButton" destination="USD-sI-X9K" id="p0F-Dm-Njd"/>
                         <outlet property="meetCounter" destination="1eX-mO-2RT" id="s4W-bo-arc"/>
+                        <outlet property="meetDistanceLabel" destination="pBf-Wb-dn4" id="z0E-MH-PgG"/>
                         <outlet property="profileView" destination="eAj-6H-K6S" id="nyl-JA-UoZ"/>
                         <outlet property="searchingView" destination="pZW-QX-F79" id="oQP-EU-yNt"/>
+                        <outlet property="startDistanceLabel" destination="3sX-gX-TuM" id="8E5-Z3-K9G"/>
                         <outlet property="startTalkingButton" destination="hyE-fQ-Dxw" id="eZX-ZZ-akQ"/>
                         <outlet property="talkingView" destination="SlF-x3-muR" id="aA8-mt-qlr"/>
                         <outlet property="topicTextView" destination="SXx-hv-8ry" id="Sef-vR-d6G"/>

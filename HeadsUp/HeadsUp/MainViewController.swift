@@ -19,7 +19,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var currentLocation: CLLocation = CLLocation()
     var user: User?
     var uuid: String?
-    var matchedUserUUID = ""
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -29,6 +28,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     @IBOutlet weak var meetCounter: UILabel!
     @IBOutlet weak var topicTextView: UITextView!
     @IBOutlet weak var startTalkingButton: UIButton!
+    @IBOutlet weak var meetDistanceLabel: UILabel!
+    @IBOutlet weak var startDistanceLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,6 +102,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
                             self.searchingView.isHidden = true
                             
+                            self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                            
                             // Place closestUser, closest Restuarant, and Midpoint annotation
                             self.placeAnnotations()
                         })
@@ -121,6 +124,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                 self.mainMapView.removeAnnotation(closestUser)
                                 self.mainMapView.addAnnotation(closestUser)
                                 self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                                
+                                self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
                                 
                             } else {
                                 print("GeoFire does not contain a location for \"user-location\"")
@@ -295,7 +300,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 }
             }
         }
-        
+    }
+    
+    func updateDistanceLabels(label: UILabel, managerLocation: CLLocationCoordinate2D, closestUser: User) {
+        if managerLocation.distance(from: closestUser.coordinate) >= 1000 {
+            label.text = String(format: "%.0f km", managerLocation.distance(from: closestUser.coordinate) / 1000)
+        } else {
+            label.text =  String(format: "%.0f m", managerLocation.distance(from: closestUser.coordinate))
+        }
     }
     
     
