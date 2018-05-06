@@ -11,7 +11,9 @@ import MapKit
 import GeoFire
 import Firebase
 
+
 class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+    
     
     @IBOutlet weak var mainMapView: MKMapView!
     var locationManager = CLLocationManager()
@@ -19,7 +21,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var currentLocation: CLLocation = CLLocation()
     var user: User?
     var uuid: String?
-    var matchedUserUUID = ""
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -29,13 +30,16 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     @IBOutlet weak var meetCounter: UILabel!
     @IBOutlet weak var topicTextView: UITextView!
     @IBOutlet weak var startTalkingButton: UIButton!
+    @IBOutlet weak var meetDistanceLabel: UILabel!
+    @IBOutlet weak var startDistanceLabel: UILabel!
+    @IBOutlet weak var meetNameLabel: UILabel!
+    @IBOutlet weak var startNameLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.distanceFilter = 5;
-        //self.mainMapView.userTrackingMode = MKUserTrackingMode.follow
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
@@ -56,6 +60,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         let region: MKCoordinateRegion = MKCoordinateRegionMake(self.currentLocation.coordinate, span)
         self.mainMapView.setRegion(region, animated: true)
         
+        
         if profileView.isHidden == false{
         setupMeetObserver()
         }
@@ -68,7 +73,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         print("here")
         if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
-            // Use it...
             self.user?.saveLocGeoFire(uuid: udid)
             Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude as Any, "1" : manager.location?.coordinate.longitude as Any])
             self.user?.saveLocGeoFire(uuid: udid)
@@ -85,8 +89,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 let geoFire = GeoFire(firebaseRef: Database.database().reference(withPath: "User_Location"))
                 let circleQuery = geoFire.query(at: center, withRadius: 5.0)
                 
-                var queryHandle = circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
-                    
+                circleQuery.observe(.keyEntered, with: { (key: String!, location: CLLocation!) in
                     //print("Key '\(key)' entered the search area and is at location '\(location)'")
                     if udid != key {
                         guard let userDict = value else {return}
@@ -99,7 +102,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             self.searchingView.removeFromSuperview()
                             self.view.addSubview(self.profileView)
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
-                            self.searchingView.isHidden = true
+                            //self.searchingView.isHidden = true
+                            
+                            self.meetNameLabel.text = closestUser.name
+                            self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                            
+                           UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
                             
                             // Place closestUser, closest Restuarant, and Midpoint annotation
                             self.placeAnnotations()
@@ -121,6 +129,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                 self.mainMapView.removeAnnotation(closestUser)
                                 self.mainMapView.addAnnotation(closestUser)
                                 self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                                
+                                self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
                                 
                             } else {
                                 print("GeoFire does not contain a location for \"user-location\"")
@@ -149,7 +159,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             print("-----\(self.mainMapView.annotations)")
             self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
         })
-        
         
         /*
          * Enables all annotations to fit on the screen.
@@ -223,10 +232,9 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.profileView.removeFromSuperview()
                                     self.view.addSubview(self.talkingView)
                                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-                                    self.profileView.isHidden = true
+                                    self.startNameLabel.text = self.dataManager?.closestUser?.name
                                 }
                             }
-                            
                         }
                     }
                 }
@@ -247,11 +255,11 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 self.profileView.removeFromSuperview()
                 self.view.addSubview(self.talkingView)
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
-                self.profileView.isHidden = true
-
+                self.startNameLabel.text = self.dataManager?.closestUser?.name
             }
         })
     }
+
     
     func setupStartObserver(){
         
@@ -295,7 +303,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 }
             }
         }
-        
+    }
+    
+    func updateDistanceLabels(label: UILabel, managerLocation: CLLocationCoordinate2D, closestUser: User) {
+        if managerLocation.distance(from: closestUser.coordinate) >= 1000 {
+            label.text = String(format: "%.0f km", managerLocation.distance(from: closestUser.coordinate) / 1000)
+        } else {
+            label.text =  String(format: "%.0f m", managerLocation.distance(from: closestUser.coordinate))
+        }
     }
     
     

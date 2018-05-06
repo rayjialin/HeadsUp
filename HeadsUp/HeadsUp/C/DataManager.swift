@@ -12,8 +12,6 @@ import GeoFire
 
 class DataManager: NSObject {
     
-    //var user: User
-//    var matchedUsers: MatchUsers
     var closestUser: User?
     var currentUser: User
     var locateCafe: LocateCafe?
@@ -28,9 +26,6 @@ class DataManager: NSObject {
         if !self.usersArray.contains(newUser) {
             self.usersArray.append(newUser)
         }
-//        guard let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: usersArray) else { return }
-//        self.closestUser = closestUser
-//        self.currentUser.matchedUserUUID = self.closestUser
         
     }
     

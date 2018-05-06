@@ -12,17 +12,18 @@ import UIKit
 class TimerViewController: UIViewController {
 
     @IBOutlet weak var timerLabel: UILabel!
-    var seconds = 360
+    var seconds = 5
     var timer = Timer()
     var isTimerRunning = true
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-    runTimer()
+        runTimer()
         
     }
+    
     
     func runTimer() {
         self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
@@ -31,7 +32,7 @@ class TimerViewController: UIViewController {
     @objc func updateTimer() {
         if seconds < 1 {
             timer.invalidate()
-            performSegue(withIdentifier: "feedbackSegue", sender: self)
+            performSegue(withIdentifier: "reviewSegue", sender: self)
         } else {
             seconds -= 1
             timerLabel.text = timeString(time: TimeInterval(seconds))
@@ -39,10 +40,9 @@ class TimerViewController: UIViewController {
     }
     
     func timeString(time:TimeInterval) -> String {
-        let hours = Int(time) / 3600
         let minutes = Int(time) / 60 % 60
         let seconds = Int(time) % 60
-        return String(format:"%02i:%02i:%02i", hours, minutes, seconds)
+        return String(format:"%01i:%02i", minutes, seconds)
     }
     
 }
