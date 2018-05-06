@@ -75,7 +75,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
      
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
-                print(snapshot)
+                //print(snapshot)
                 let value = snapshot.value as? NSDictionary
                 
                 // Use Geofire query with radius to find locations in the area.
@@ -101,8 +101,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
                             self.searchingView.isHidden = true
                             
-                            self.placeAnnotations()
-                            // listen to matched users action
+                            // Place closestUser, closest Restuarant, and Midpoint annotation
                             self.placeAnnotations()
                         })
                     }
@@ -110,24 +109,29 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
                    // print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    let geoFire = GeoFire(firebaseRef: Database.database().reference().child("User_Location"))
                     if self.user?.matchedUserUUID == key {
-                        self.dataManager?.findClosestUser(completion: { (closestUser) in
-                            closestUser.coordinate = location.coordinate
-                            self.mainMapView.removeAnnotation(closestUser)
-                            self.mainMapView.addAnnotation(closestUser)
-                            
-                           // print("\(self.mainMapView.annotations) --- - - --")
-                            self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-                        })
+                        geoFire.getLocationForKey(key) { (geoLocation, error) in
+                            guard let closestUser = self.dataManager?.closestUser else {return}
+                            if (error != nil) {
+                                print("An error occurred getting the location for \"user-location\": \(error?.localizedDescription)")
+                            }
+                            if let geoLocation = location {
+                                closestUser.coordinate = geoLocation.coordinate
+                                self.mainMapView.removeAnnotation(closestUser)
+                                self.mainMapView.addAnnotation(closestUser)
+                                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                                
+                            } else {
+                                print("GeoFire does not contain a location for \"user-location\"")
+                            }
+                        }
                     }
                     
                 })
                 circleQuery.observeReady({
                     print("All initial data has been loaded and events have been fired!")
                 })
-
-                
-                
             })
             
         } else {
