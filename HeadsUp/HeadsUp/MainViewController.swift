@@ -11,7 +11,6 @@ import MapKit
 import GeoFire
 import Firebase
 
-
 class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
     
@@ -20,8 +19,13 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
+    var image: UIImage? = UIImage()
+    var name = String()
+    var email = String()
+    var phoneNumber = String()
     var timer = Timer()
     var seconds = 5
+
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -35,6 +39,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     @IBOutlet weak var startDistanceLabel: UILabel!
     @IBOutlet weak var meetNameLabel: UILabel!
     @IBOutlet weak var startNameLabel: UILabel!
+    @IBOutlet weak var meetProfileImageView: UIImageView!
+    @IBOutlet weak var startProfileImageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +50,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
+        
+        createUserProfile()
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -53,7 +61,15 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             if let firstLocation = manager.location {
                 self.currentLocation = firstLocation
             }
-            self.user = User(name: "Ray", coordinate: self.currentLocation.coordinate)
+            //            self.user = User(name: "Ray", coordinate: self.currentLocation.coordinate)
+            guard let name = UserDefaults.standard.value(forKey: "name") as? String else {return}
+            guard let imageUrl = UserDefaults.standard.value(forKey: "ProfileimageUrl") as? String else {return}
+            guard let email = UserDefaults.standard.value(forKey: "email") as? String else {return}
+            guard let phoneNumber = UserDefaults.standard.value(forKey: "phoneNumber") as? String else {return}
+            
+            
+            self.user = User(name: name, email: email, profileImageUrl: imageUrl, phoneNumber: phoneNumber, coordinate: self.currentLocation.coordinate)
+
             if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
                 self.user?.saveLocGeoFire(uuid: udid)
             } else {
@@ -61,7 +77,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 UserDefaults.standard.set(udid, forKey: "MY_UUID")
             }
             
-            //self.user?.saveLocGeoFire(uuid: UserDefaults.standard.value(forKey: "MY_UUID") as String)
             guard let user = self.user else {return}
             self.dataManager = DataManager(user: user)
         }
@@ -76,7 +91,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         if talkingView.isHidden == false{
             setupStartObserver()
         }
-        //        observeMatchedUserCoord()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -103,30 +117,38 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         guard let userDict = value else {return}
                         guard let singleDict = userDict[key] as? NSDictionary else {return}
                         guard let name = singleDict["name"] as? String else {return}
-                        let nearbyUser = User(name: name, coordinate: location.coordinate)
+                        guard let phoneNUmber = singleDict["phoneNumber"] as? String else {return}
+                        guard let email = singleDict["email"] as? String else {return}
+                        guard let profileImage = singleDict["profileImage"] as? String else {return}
+                        let nearbyUser = User(name: name, email: email, profileImageUrl: profileImage, phoneNumber: phoneNUmber, coordinate: location.coordinate)
+                        //                        let nearbyUser = User(name: name, email: nil, profileImageUrl: nil, phoneNumber: nil, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
                         if self.dataManager?.closestUser == nil {
-                            self.dataManager?.findClosestUser(completion: { (closestUser) in
-                                self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
-                                self.searchingView.removeFromSuperview()
-                                self.view.addSubview(self.profileView)
-                                ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
-                                //self.searchingView.isHidden = true
-                                
-                                self.meetNameLabel.text = closestUser.name
-                                self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
-                                
-                                UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
-                                
-                                // Place closestUser, closest Restuarant, and Midpoint annotation
-                                self.placeAnnotations()
-                            })
-                        }
+                        self.dataManager?.findClosestUser(completion: { (closestUser) in
+                            self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
+                            self.searchingView.removeFromSuperview()
+                            self.view.addSubview(self.profileView)
+                            ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
+                            //self.searchingView.isHidden = true
+                            
+                            self.meetNameLabel.text = closestUser.name
+                            self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                            
+                            UserDefaults.standard.set(self.user?.matchedUserUUID, forKey: "closestUserUUID")
+                            UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
+                            UserDefaults.standard.set(closestUser.profileImageUrl, forKey: "closestUserImageUrl")
+                            UserDefaults.standard.set(closestUser.phoneNumber, forKey: "closestUserPhoneNumber")
+                            
+                            // Place closestUser, closest Restuarant, and Midpoint annotation
+                            self.placeAnnotations()
+                        })
+                    }
                     }
                 })
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
-                    //print("Key '\(key)' entered the search area and is at location '\(location)'")
+                    // print("Key '\(key)' entered the search area and is at location '\(location)'")
+
                     let geoFire = GeoFire(firebaseRef: Database.database().reference().child("User_Location"))
                     if self.user?.matchedUserUUID == key {
                         geoFire.getLocationForKey(key) { (geoLocation, error) in
@@ -248,6 +270,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.view.addSubview(self.talkingView)
                                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                                     self.startNameLabel.text = self.dataManager?.closestUser?.name
+                                    
+                                    
                                 }
                             }
                         }
@@ -256,24 +280,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             }
         }
     }
-    
-    //    func observeMatchedUserCoord() {
-    //        self.user?.geofireRef.child("User_Location").observe(.value, with: { (snapshot) in
-    //            guard let matchedUser = self.user?.matchedUserUUID else {return}
-    //
-    //            let lat = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "l").childSnapshot(forPath: "0").value as? CLLocationDegrees
-    //            let lon = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "l").childSnapshot(forPath: "1").value as? CLLocationDegrees
-    //
-    //            guard let closestUser = self.dataManager?.closestUser else {return}
-    //            self.mainMapView.removeAnnotation(closestUser)
-    //            let updateClosestUserAnnotation = closestUser
-    //            if let lat = lat, let lon = lon {
-    //                updateClosestUserAnnotation.coordinate.latitude = lat
-    //                updateClosestUserAnnotation.coordinate.longitude = lon
-    //                self.mainMapView.addAnnotation(updateClosestUserAnnotation)
-    //            }
-    //        })
-    //    }
     
     func setupMeetObserver(){
         
@@ -288,6 +294,11 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 self.view.addSubview(self.talkingView)
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
+                self.displayRandomTopic()
+                
+                if let myCoordinate = self.locationManager.location?.coordinate, let closestUser = self.dataManager?.closestUser {
+                    self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: myCoordinate, closestUser: closestUser)
+                }
             }
             
             // When Matched User DOESNT agree then reset the closestUser & button
@@ -297,11 +308,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         self.dataManager?.usersArray.remove(at: index)
                     }
                 }
-                //                self.mainMapView.removeAnnotations(self.mainMapView.annotations)
-                //                self.dataManager?.dataAnnotations(completion: { (annotations) in
-                //                    self.mainMapView.addAnnotations(annotations)
-                //                    self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-                //                })
             }
         })
     }
@@ -316,6 +322,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             
             if agreedToStart == true && self.user?.isStarted == true{
                 self.performSegue(withIdentifier: "timerSegue", sender: self)
+                
             }
         })
     }
@@ -357,7 +364,20 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             label.text =  String(format: "%.0f m", managerLocation.distance(from: closestUser.coordinate))
         }
     }
-    
+
+    func displayRandomTopic(){
+        let randomTopicNumber = String(arc4random_uniform(5))
+        self.user?.geofireRef.child("Topics").observeSingleEvent(of: .value, with: { (snapshot) in
+            if snapshot.hasChild(randomTopicNumber){
+                DispatchQueue.main.async {
+                    self.topicTextView.text = "suggested topic:\n\(snapshot.childSnapshot(forPath: randomTopicNumber).value as? String ?? "Say anything you want")"
+                    self.topicTextView.isHidden = false
+                }
+            }
+        })
+    }
+        
+
     func runTimer() {
         self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
     }
@@ -377,5 +397,62 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     
+    func createUserProfile(){
+        
+        if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String {
+            if uuid == "5A88BD2B-B18D-46C4-9CBA-628C738ED874" || uuid == "849A01AA-2F57-4438-BAAA-70B7F2FAB975"{
+                self.startProfileImageView.image = #imageLiteral(resourceName: "brian")
+                self.meetProfileImageView.image = #imageLiteral(resourceName: "brian")
+                image = #imageLiteral(resourceName: "brian")
+                name = "Brian"
+                email = "brianLHL@gmail.com"
+                phoneNumber = "778-456-9037"
+            }else if uuid == "C86474A7-DE27-4B1B-A5BF-186FDF648622" || uuid == "4CFFA45B-BBB8-4E7C-99D6-FA453669C269"{
+                self.startProfileImageView.image = #imageLiteral(resourceName: "ray")
+                self.meetProfileImageView.image = #imageLiteral(resourceName: "ray")
+                image = #imageLiteral(resourceName: "ray")
+                name = "Ray"
+                email = "rayLHL@gmail.com"
+                phoneNumber = "778-392-1701"
+            }
+            guard let image = image else {return}
+            let imageName = NSUUID().uuidString
+            let storageRef = Storage.storage().reference().child("\(imageName).png")
+            
+            if let uploadData = UIImagePNGRepresentation(image){
+                storageRef.putData(uploadData, metadata: nil) { (metadata, error) in
+                    if let error = error{
+                        print(error)
+                        return
+                    }
+                    
+                    if let profileImageUrl = metadata?.downloadURL()?.absoluteString {
+                        self.user?.profileImageUrl = profileImageUrl
+                        self.user?.name = self.name
+                        self.user?.email = self.email
+                        self.user?.phoneNumber = self.phoneNumber
+                        
+                        UserDefaults.standard.set(profileImageUrl, forKey: "ProfileimageUrl")
+                        UserDefaults.standard.set(self.email, forKey: "email")
+                        UserDefaults.standard.set(self.phoneNumber, forKey: "phoneNumber")
+                        UserDefaults.standard.set(self.name, forKey: "name")
+                        
+                        let userRef = Database.database().reference().child("Users").child(uuid)
+                        userRef.updateChildValues(["name": self.user?.name])
+                        userRef.updateChildValues(["email": self.user?.email])
+                        userRef.updateChildValues(["profileImage": self.user?.profileImageUrl])
+                        userRef.updateChildValues(["phoneNumber": self.user?.phoneNumber])
+                    }
+                }
+            }
+        }
+    }
+    
+    class func downloadProfileImage(imageUrl: String, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        guard let url = URL(string: imageUrl) else {return}
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            completion(data, response, error)
+            }.resume()
+    }
     
 }
