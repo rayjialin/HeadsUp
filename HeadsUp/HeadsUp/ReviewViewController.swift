@@ -7,17 +7,51 @@
 //
 
 import UIKit
+import Firebase
+import GeoFire
 
 class ReviewViewController: UIViewController, UITextViewDelegate {
     
+//    var segueDict = [String:String]
+    
+    var user: User?
+    var matchedUserUUID: String?
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var matchedUserImage: UIImageView!
+    @IBOutlet weak var matchedUserPhoneNumber: UILabel!
+    let geofireRef = Database.database().reference()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let closestUser = UserDefaults.standard.value(forKey: "CLOSEST_USER") as! String
-        self.nameLabel.text = closestUser
+        // start observing phone number
+        obseringPhoneNumber()
+        
+        if let matchedUUID = UserDefaults.standard.value(forKey: "closestUserUUID") as? String{
+            matchedUserUUID = matchedUUID
+        }
+        
+        if let closestUser = UserDefaults.standard.value(forKey: "CLOSEST_USER") as? String {
+            self.nameLabel.text = closestUser
+        }
+        
+        if let closestUserImageUrl = UserDefaults.standard.value(forKey: "closestUserImageUrl") as? String {
+            let imageUrl = closestUserImageUrl
+            
+            MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
+                if let error = error{
+                    print(error)
+                }
+                DispatchQueue.main.async {
+                    self.matchedUserImage.image = UIImage(data: data!)
+                    self.matchedUserImage.layer.cornerRadius = self.matchedUserImage.frame.size.width / 2
+                    self.matchedUserImage.contentMode = .scaleAspectFit
+                }
+                
+            })
+        }
+        
         
         textView.delegate = self
         textView.text = "How was your conversation? Write notes to save for later."
@@ -39,7 +73,9 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
      */
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        
+        if textView.text == "/n" {
+            self.view.endEditing(true)
+        }
         // Combine the textView text and the replacement text to
         // create the updated text string
         let currentText:String = textView.text
@@ -76,10 +112,35 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
             }
         }
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    
+    @IBAction func showPhoneNumber(_ sender: UIButton) {
+        guard let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String else {return}
+        geofireRef.child("Users").child(uuid).updateChildValues(["showPhoneNumber": true])
     }
+    
+    
+    func obseringPhoneNumber(){
+        geofireRef.child("Users").observe(.value, with: { (snapshot) in
+            guard let uuid = self.matchedUserUUID else {return}
+            guard let showPhoneNumber = snapshot.childSnapshot(forPath: uuid).childSnapshot(forPath: "showPhoneNumber").value as? Bool else {return}
+            
+            if showPhoneNumber == true{
+                UIView.animate(withDuration: 3, delay: 0, options: .curveEaseIn, animations: {
+                    let closestUserPhoneNumber = UserDefaults.standard.value(forKey: "closestUserPhoneNumber") as? String
+                    self.matchedUserPhoneNumber.text = closestUserPhoneNumber
+                }, completion: nil)
+            }
+        })
+    }
+    
 
+    @IBAction func segueToTV(_ sender: UIButton) {
+//        performSegue(withIdentifier: "segueToTVId", sender: self)
+        print("naything")
+    }
+//
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        <#code#>
+//    }
 }
