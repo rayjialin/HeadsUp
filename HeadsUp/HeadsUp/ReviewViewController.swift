@@ -12,7 +12,7 @@ import GeoFire
 
 class ReviewViewController: UIViewController, UITextViewDelegate {
     
-//    var segueDict = [String:String]
+    var segueDict = [String:String]()
     
     var user: User?
     var matchedUserUUID: String?
@@ -29,14 +29,17 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
         obseringPhoneNumber()
         
         if let matchedUUID = UserDefaults.standard.value(forKey: "closestUserUUID") as? String{
+            segueDict["closestUserUUID"] = matchedUUID
             matchedUserUUID = matchedUUID
         }
         
         if let closestUser = UserDefaults.standard.value(forKey: "CLOSEST_USER") as? String {
+            segueDict["closestUser"] = closestUser
             self.nameLabel.text = closestUser
         }
         
         if let closestUserImageUrl = UserDefaults.standard.value(forKey: "closestUserImageUrl") as? String {
+            segueDict["closestUserImageUrl"] = closestUserImageUrl
             let imageUrl = closestUserImageUrl
             
             MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
@@ -126,19 +129,31 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
             if showPhoneNumber == true{
                 UIView.animate(withDuration: 3, delay: 0, options: .curveEaseIn, animations: {
                     let closestUserPhoneNumber = UserDefaults.standard.value(forKey: "closestUserPhoneNumber") as? String
+                    self.matchedUserPhoneNumber.isHidden = false
                     self.matchedUserPhoneNumber.text = closestUserPhoneNumber
                 }, completion: nil)
             }
         })
     }
     
-
     @IBAction func segueToTV(_ sender: UIButton) {
-//        performSegue(withIdentifier: "segueToTVId", sender: self)
-        print("naything")
+        segueDict["matchedUserFeedback"] = self.textView.text
+        if self.matchedUserPhoneNumber.isHidden == false{
+            if let closestUserPhoneNumber = UserDefaults.standard.value(forKey: "closestUserPhoneNumber") as? String{
+                segueDict["closestUserPhoneNumber"] = closestUserPhoneNumber
+            }
+        }
+        
+        performSegue(withIdentifier: "segueToTVId", sender: segueDict)
     }
-//
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        <#code#>
-//    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let geofireRef = Database.database().reference()
+        geofireRef.removeAllObservers()
+        if let profileTableView = segue.destination as? ProfileTableView{
+            if let dict = sender as? [String: String]{
+                profileTableView.segueDict = dict
+            }
+        }
+    }
 }

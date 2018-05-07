@@ -25,7 +25,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var phoneNumber = String()
     var timer = Timer()
     var seconds = 5
-
+    
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -69,7 +69,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             
             
             self.user = User(name: name, email: email, profileImageUrl: imageUrl, phoneNumber: phoneNumber, coordinate: self.currentLocation.coordinate)
-
+            
             if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
                 self.user?.saveLocGeoFire(uuid: udid)
             } else {
@@ -124,31 +124,31 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         //                        let nearbyUser = User(name: name, email: nil, profileImageUrl: nil, phoneNumber: nil, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
                         if self.dataManager?.closestUser == nil {
-                        self.dataManager?.findClosestUser(completion: { (closestUser) in
-                            self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
-                            self.searchingView.removeFromSuperview()
-                            self.view.addSubview(self.profileView)
-                            ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
-                            //self.searchingView.isHidden = true
-                            
-                            self.meetNameLabel.text = closestUser.name
-                            self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
-                            
-                            UserDefaults.standard.set(self.user?.matchedUserUUID, forKey: "closestUserUUID")
-                            UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
-                            UserDefaults.standard.set(closestUser.profileImageUrl, forKey: "closestUserImageUrl")
-                            UserDefaults.standard.set(closestUser.phoneNumber, forKey: "closestUserPhoneNumber")
-                            
-                            // Place closestUser, closest Restuarant, and Midpoint annotation
-                            self.placeAnnotations()
-                        })
-                    }
+                            self.dataManager?.findClosestUser(completion: { (closestUser) in
+                                self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
+                                self.searchingView.removeFromSuperview()
+                                self.view.addSubview(self.profileView)
+                                ViewLayoutConstraint.viewLayoutConstraint(self.profileView, defaultView: self.defaultView)
+                                //self.searchingView.isHidden = true
+                                
+                                self.meetNameLabel.text = closestUser.name
+                                self.updateDistanceLabels(label: self.meetDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                                
+                                UserDefaults.standard.set(self.user?.matchedUserUUID, forKey: "closestUserUUID")
+                                UserDefaults.standard.set(closestUser.name, forKey: "CLOSEST_USER")
+                                UserDefaults.standard.set(closestUser.profileImageUrl, forKey: "closestUserImageUrl")
+                                UserDefaults.standard.set(closestUser.phoneNumber, forKey: "closestUserPhoneNumber")
+                                
+                                // Place closestUser, closest Restuarant, and Midpoint annotation
+                                self.placeAnnotations()
+                            })
+                        }
                     }
                 })
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
                     // print("Key '\(key)' entered the search area and is at location '\(location)'")
-
+                    
                     let geoFire = GeoFire(firebaseRef: Database.database().reference().child("User_Location"))
                     if self.user?.matchedUserUUID == key {
                         geoFire.getLocationForKey(key) { (geoLocation, error) in
@@ -282,7 +282,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     }
     
     func setupMeetObserver(){
-        
+        guard let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String else {return}
         self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
             guard let matchedUser = self.user?.matchedUserUUID else {return}
             
@@ -294,7 +294,11 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 self.view.addSubview(self.talkingView)
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
-                self.displayRandomTopic()
+                if let agreedToStart = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToStart").value as? Bool, let matchedUserAgreedToStart = snapshot.childSnapshot(forPath: uuid).childSnapshot(forPath: "agreedToStart").value as? Bool{
+                    if agreedToStart == false || matchedUserAgreedToStart == false{
+                        self.displayRandomTopic()
+                    }
+                }
                 
                 if let myCoordinate = self.locationManager.location?.coordinate, let closestUser = self.dataManager?.closestUser {
                     self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: myCoordinate, closestUser: closestUser)
@@ -314,7 +318,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     
     
     func setupStartObserver(){
-        
         self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
             guard let matchedUser = self.user?.matchedUserUUID else {return}
             
@@ -364,20 +367,21 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             label.text =  String(format: "%.0f m", managerLocation.distance(from: closestUser.coordinate))
         }
     }
-
+    
     func displayRandomTopic(){
+        
         let randomTopicNumber = String(arc4random_uniform(5))
         self.user?.geofireRef.child("Topics").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.hasChild(randomTopicNumber){
                 DispatchQueue.main.async {
-                    self.topicTextView.text = "suggested topic:\n\(snapshot.childSnapshot(forPath: randomTopicNumber).value as? String ?? "Say anything you want")"
+                    self.topicTextView.text = "SUGGESTED TOPIC:\n\(snapshot.childSnapshot(forPath: randomTopicNumber).value as? String ?? "Say anything you want")"
                     self.topicTextView.isHidden = false
                 }
             }
         })
     }
-        
-
+    
+    
     func runTimer() {
         self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
     }
@@ -401,15 +405,15 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         
         if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String {
             if uuid == "5A88BD2B-B18D-46C4-9CBA-628C738ED874" || uuid == "849A01AA-2F57-4438-BAAA-70B7F2FAB975"{
-                self.startProfileImageView.image = #imageLiteral(resourceName: "brian")
-                self.meetProfileImageView.image = #imageLiteral(resourceName: "brian")
+                self.startProfileImageView.image = #imageLiteral(resourceName: "ray")
+                self.meetProfileImageView.image = #imageLiteral(resourceName: "ray")
                 image = #imageLiteral(resourceName: "brian")
                 name = "Brian"
                 email = "brianLHL@gmail.com"
                 phoneNumber = "778-456-9037"
             }else if uuid == "C86474A7-DE27-4B1B-A5BF-186FDF648622" || uuid == "4CFFA45B-BBB8-4E7C-99D6-FA453669C269"{
-                self.startProfileImageView.image = #imageLiteral(resourceName: "ray")
-                self.meetProfileImageView.image = #imageLiteral(resourceName: "ray")
+                self.startProfileImageView.image = #imageLiteral(resourceName: "brian")
+                self.meetProfileImageView.image =  #imageLiteral(resourceName: "brian")
                 image = #imageLiteral(resourceName: "ray")
                 name = "Ray"
                 email = "rayLHL@gmail.com"
