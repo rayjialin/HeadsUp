@@ -73,7 +73,9 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
      */
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        
+        if textView.text == "/n" {
+            self.view.endEditing(true)
+        }
         // Combine the textView text and the replacement text to
         // create the updated text string
         let currentText:String = textView.text

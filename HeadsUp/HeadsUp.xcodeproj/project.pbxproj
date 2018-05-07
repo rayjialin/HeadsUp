@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		33EB3C95F0FD992DE5BCFE06 /* Pods_HeadsUp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68354E27191E1AA5D1FE75C /* Pods_HeadsUp.framework */; };
 		38467D32209D604400F17EBE /* TimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38467D31209D604400F17EBE /* TimerViewController.swift */; };
-		387FF62E209F9BCF00E7B14E /* CreateUserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387FF62D209F9BCF00E7B14E /* CreateUserProfile.swift */; };
 		3897AF5E209FC34100AF2F68 /* ProfileTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3897AF5D209FC34100AF2F68 /* ProfileTableView.swift */; };
 		3897AF60209FC3BB00AF2F68 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3897AF5F209FC3BB00AF2F68 /* ProfileCell.swift */; };
 		7AD75F8B209EB1C5007B41B4 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */; };
@@ -30,7 +29,6 @@
 
 /* Begin PBXFileReference section */
 		38467D31209D604400F17EBE /* TimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewController.swift; sourceTree = "<group>"; };
-		387FF62D209F9BCF00E7B14E /* CreateUserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserProfile.swift; sourceTree = "<group>"; };
 		3897AF5D209FC34100AF2F68 /* ProfileTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTableView.swift; sourceTree = "<group>"; };
 		3897AF5F209FC3BB00AF2F68 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
 		7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
@@ -89,7 +87,6 @@
 		7A6DD268209B827A009A7239 /* M */ = {
 			isa = PBXGroup;
 			children = (
-				387FF62D209F9BCF00E7B14E /* CreateUserProfile.swift */,
 				7AE64C47209A5AD900288B91 /* User.swift */,
 				7AE64C41209A419700288B91 /* CafeModel.swift */,
 				7AE64C49209A611600288B91 /* MatchUsers.swift */,
@@ -349,7 +346,6 @@
 				7AD75F8B209EB1C5007B41B4 /* ReviewViewController.swift in Sources */,
 				7AE64C46209A43C200288B91 /* NetworkManager.m in Sources */,
 				7AE64C51209AB9CD00288B91 /* ViewLayoutConstraint.m in Sources */,
-				387FF62E209F9BCF00E7B14E /* CreateUserProfile.swift in Sources */,
 				7AE64C42209A419700288B91 /* CafeModel.swift in Sources */,
 				3897AF60209FC3BB00AF2F68 /* ProfileCell.swift in Sources */,
 			);
