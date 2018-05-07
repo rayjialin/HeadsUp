@@ -16,7 +16,6 @@ class DataManager: NSObject {
     var currentUser: User
     var locateCafe: LocateCafe?
     var usersArray = [User]()
-    var saveClosestUserFirstLocation: CLLocationCoordinate2D?
     
     
     init(user: User) {
@@ -34,7 +33,6 @@ class DataManager: NSObject {
         if let closestUser = MatchUsers.findClosestUser(user: self.currentUser, userArray: self.usersArray) {
             DispatchQueue.main.async {
                 self.closestUser = closestUser
-                self.saveClosestUserFirstLocation = closestUser.coordinate
                 completion(closestUser)
             }
         }

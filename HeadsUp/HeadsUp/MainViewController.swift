@@ -40,7 +40,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         super.viewDidLoad()
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
-        self.locationManager.distanceFilter = 5;
+        self.locationManager.distanceFilter = 2;
         
         self.view.addSubview(self.searchingView)
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
@@ -76,7 +76,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         if talkingView.isHidden == false{
             setupStartObserver()
         }
-        //        observeMatchedUserCoord()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -135,18 +134,18 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             }
                             if let geoLocation = geoLocation {
                                 guard let closestUser = self.dataManager?.closestUser else {return}
-                                self.mainMapView.removeAnnotation(closestUser)
-                                let updateClosestUserAnnotation = closestUser
-                                updateClosestUserAnnotation.coordinate = geoLocation.coordinate
-                                //if self.dataManager?.saveClosestUserFirstLocation?.latitude != geoLocation.coordinate.latitude &&
-                                //self.dataManager?.saveClosestUserFirstLocation?.longitude != geoLocation.coordinate.longitude {
-                                self.mainMapView.addAnnotation(updateClosestUserAnnotation)
-                                //                                print("++++++\(self.mainMapView.annotations)--++++--")
-                                //                                    print("++++++\(updateClosestUserAnnotation.coordinate)--++++--")
-                                //}
-                                //self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                                 let updateClosestUserAnnotation = closestUser
+                                UIView.animate(withDuration: 0.5, animations: {
+                                    self.mainMapView.removeAnnotation(closestUser)
+                                    updateClosestUserAnnotation.coordinate = geoLocation.coordinate
+                                    self.mainMapView.addAnnotation(updateClosestUserAnnotation)
+                                }, completion: nil)
+//                                self.mainMapView.removeAnnotation(closestUser)
+//                                let updateClosestUserAnnotation = closestUser
+//                                updateClosestUserAnnotation.coordinate = geoLocation.coordinate
+//                                self.mainMapView.addAnnotation(updateClosestUserAnnotation)
                                 
-                                self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
+                                self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: managerLocation, closestUser: updateClosestUserAnnotation)
                                 
                             } else {
                                 print("GeoFire does not contain a location for \"user-location\"")
@@ -166,8 +165,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         if self.mainMapView.annotations.count < 4 {
             self.dataManager?.dataAnnotations(completion: { (annotationArray) in
                 print("ADDING ANNOTATIONARRAY USER")
-                self.mainMapView.addAnnotations(annotationArray)
-                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                 if self.mainMapView.annotations.count < 4 {
+                    self.mainMapView.addAnnotations(annotationArray)
+                    self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                }
                 
                 print("-----\(self.mainMapView.annotations)")
             })
@@ -190,7 +191,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
         self.mainMapView.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsetsMake(15, 15, 15, 15), animated: true)
     }
-    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
@@ -257,24 +257,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
     }
     
-    //    func observeMatchedUserCoord() {
-    //        self.user?.geofireRef.child("User_Location").observe(.value, with: { (snapshot) in
-    //            guard let matchedUser = self.user?.matchedUserUUID else {return}
-    //
-    //            let lat = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "l").childSnapshot(forPath: "0").value as? CLLocationDegrees
-    //            let lon = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "l").childSnapshot(forPath: "1").value as? CLLocationDegrees
-    //
-    //            guard let closestUser = self.dataManager?.closestUser else {return}
-    //            self.mainMapView.removeAnnotation(closestUser)
-    //            let updateClosestUserAnnotation = closestUser
-    //            if let lat = lat, let lon = lon {
-    //                updateClosestUserAnnotation.coordinate.latitude = lat
-    //                updateClosestUserAnnotation.coordinate.longitude = lon
-    //                self.mainMapView.addAnnotation(updateClosestUserAnnotation)
-    //            }
-    //        })
-    //    }
-    
     func setupMeetObserver(){
         
         self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
@@ -282,26 +264,20 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             
             guard let agreedToMeet = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToMeet").value as? Bool else {return}
             
-            // When matchedUser agrees to MEET *FIRST* and I agree as well
+            // When Matched User DOESNT agree then reset the closestUser & button
+            if agreedToMeet == false && self.user?.isObserving == true || agreedToMeet == true && self.user?.isObserving == false {
+                self.runTimer()
+            }
+
+            // When matchedUser agrees to MEET *FIRST* and I agree
             if agreedToMeet == true && self.user?.isObserving == true{
                 self.profileView.removeFromSuperview()
                 self.view.addSubview(self.talkingView)
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
-            }
-            
-            // When Matched User DOESNT agree then reset the closestUser & button
-            if agreedToMeet == false && self.user?.isObserving == true {
-                if let closestUser = self.dataManager?.closestUser {
-                    if let index = self.dataManager?.usersArray.index(of: closestUser) {
-                        self.dataManager?.usersArray.remove(at: index)
-                    }
+                if let myCoordinate = self.locationManager.location?.coordinate, let closestUser = self.dataManager?.closestUser {
+                    self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: myCoordinate, closestUser: closestUser)
                 }
-                //                self.mainMapView.removeAnnotations(self.mainMapView.annotations)
-                //                self.dataManager?.dataAnnotations(completion: { (annotations) in
-                //                    self.mainMapView.addAnnotations(annotations)
-                //                    self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-                //                })
             }
         })
     }
@@ -322,7 +298,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     
     // when users met up, enable the start talking button to start the timer
     @IBAction func handleStartTalking(_ sender: UIButton) {
-        
         // add property to user on firebase to set "agreeToMeet" condition to True
         if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String{
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value) { (snapshot) in
@@ -365,6 +340,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     @objc func updateTimer() {
         if seconds < 1 {
             timer.invalidate()
+            renew()
         } else {
             seconds -= 1
             meetCounter.text = timeString(time: TimeInterval(seconds))
@@ -374,6 +350,19 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         let minutes = Int(time) / 60 % 60
         let seconds = Int(time) % 60
         return String(format:"%01i:%02i", minutes, seconds)
+    }
+    
+    func renew(){
+        //reload application data (renew root view )
+        if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String {
+            Database.database().reference().child("Users").child(uuid).updateChildValues(["agreedToMeet": false,
+                                                                                          "agreedToStart": false])
+        }
+        if let matchUserUUID = self.user?.matchedUserUUID {
+            Database.database().reference().child("Users").child(matchUserUUID).updateChildValues(["agreedToMeet": false,
+                                                                                                   "agreedToStart": false])
+        }
+        UIApplication.shared.keyWindow?.rootViewController = storyboard!.instantiateViewController(withIdentifier: "Root_View")
     }
     
     
