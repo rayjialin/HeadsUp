@@ -13,11 +13,12 @@ class ProfileTableView: UIViewController, UITableViewDataSource, UITableViewDele
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var backgroundImage: UIImageView!
     
+    @IBOutlet weak var titleLabel: UILabel!
     var segueDict = [String:String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.titleLabel.adjustsFontSizeToFitWidth = true
         ViewLayoutConstraint.viewLayoutConstraint(backgroundImage, defaultView: self.view)
     }
     

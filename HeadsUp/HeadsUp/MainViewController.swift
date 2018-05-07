@@ -267,6 +267,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.profileView.removeFromSuperview()
                                     self.view.addSubview(self.talkingView)
                                     ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
+                                   
+                                    print(";;;++++++++print random topic -------=====-=----=")
+                                    self.displayRandomTopic()
+                                
                                     self.startNameLabel.text = self.dataManager?.closestUser?.name
                                     
                                     
@@ -287,7 +291,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             guard let agreedToMeet = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToMeet").value as? Bool else {return}
             
             // When Matched User DOESNT agree then reset the closestUser & button
-            if agreedToMeet == false && self.user?.isObserving == true || agreedToMeet == true && self.user?.isObserving == false {
+            if (agreedToMeet == false && self.user?.isObserving == true) || (agreedToMeet == true && self.user?.isObserving == false) {
                 self.runTimer()
             }
 
@@ -300,6 +304,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
                 if let agreedToStart = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToStart").value as? Bool, let matchedUserAgreedToStart = snapshot.childSnapshot(forPath: uuid).childSnapshot(forPath: "agreedToStart").value as? Bool{
                     if agreedToStart == false || matchedUserAgreedToStart == false{
+                        print("-----=====--=-=---print random topic -------=====-=----=")
                         self.displayRandomTopic()
                     }
                 }
@@ -365,11 +370,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     func displayRandomTopic(){
         
         let randomTopicNumber = String(arc4random_uniform(5))
+        //let topicArray = ["What is your quirky fact?", "What is youtr bathroom app?"]
         self.user?.geofireRef.child("Topics").observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.hasChild(randomTopicNumber){
                 DispatchQueue.main.async {
                     self.topicTextView.text = "SUGGESTED TOPIC:\n\(snapshot.childSnapshot(forPath: randomTopicNumber).value as? String ?? "Say anything you want")"
-                    self.topicTextView.isHidden = false
+                    //self.topicTextView.isHidden = false
                 }
             }
         })
@@ -382,6 +388,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     
     @objc func updateTimer() {
         if seconds < 1 {
+            seconds = 60
             //renew()
         } else {
             seconds -= 1
