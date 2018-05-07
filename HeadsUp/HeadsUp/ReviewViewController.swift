@@ -12,6 +12,8 @@ import GeoFire
 
 class ReviewViewController: UIViewController, UITextViewDelegate {
     
+//    var segueDict = [String:String]
+    
     var user: User?
     var matchedUserUUID: String?
     @IBOutlet weak var textView: UITextView!
@@ -37,7 +39,6 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
         if let closestUserImageUrl = UserDefaults.standard.value(forKey: "closestUserImageUrl") as? String {
             let imageUrl = closestUserImageUrl
             
-//            let createUserProfile = CreateUserProfile()
             MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
                 if let error = error{
                     print(error)
@@ -130,4 +131,14 @@ class ReviewViewController: UIViewController, UITextViewDelegate {
             }
         })
     }
+    
+
+    @IBAction func segueToTV(_ sender: UIButton) {
+//        performSegue(withIdentifier: "segueToTVId", sender: self)
+        print("naything")
+    }
+//
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        <#code#>
+//    }
 }

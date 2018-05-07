@@ -10,6 +10,8 @@
 		33EB3C95F0FD992DE5BCFE06 /* Pods_HeadsUp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68354E27191E1AA5D1FE75C /* Pods_HeadsUp.framework */; };
 		38467D32209D604400F17EBE /* TimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38467D31209D604400F17EBE /* TimerViewController.swift */; };
 		387FF62E209F9BCF00E7B14E /* CreateUserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387FF62D209F9BCF00E7B14E /* CreateUserProfile.swift */; };
+		3897AF5E209FC34100AF2F68 /* ProfileTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3897AF5D209FC34100AF2F68 /* ProfileTableView.swift */; };
+		3897AF60209FC3BB00AF2F68 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3897AF5F209FC3BB00AF2F68 /* ProfileCell.swift */; };
 		7AD75F8B209EB1C5007B41B4 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */; };
 		7AE64C28209A393000288B91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE64C27209A393000288B91 /* AppDelegate.swift */; };
 		7AE64C2D209A393000288B91 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7AE64C2B209A393000288B91 /* Main.storyboard */; };
@@ -29,6 +31,8 @@
 /* Begin PBXFileReference section */
 		38467D31209D604400F17EBE /* TimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewController.swift; sourceTree = "<group>"; };
 		387FF62D209F9BCF00E7B14E /* CreateUserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserProfile.swift; sourceTree = "<group>"; };
+		3897AF5D209FC34100AF2F68 /* ProfileTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTableView.swift; sourceTree = "<group>"; };
+		3897AF5F209FC3BB00AF2F68 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
 		7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
 		7AE64C24209A393000288B91 /* HeadsUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeadsUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AE64C27209A393000288B91 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -98,6 +102,8 @@
 			isa = PBXGroup;
 			children = (
 				7AE64C3D209A3F0000288B91 /* MainViewController.swift */,
+				3897AF5D209FC34100AF2F68 /* ProfileTableView.swift */,
+				3897AF5F209FC3BB00AF2F68 /* ProfileCell.swift */,
 				38467D31209D604400F17EBE /* TimerViewController.swift */,
 				7AD75F8A209EB1C5007B41B4 /* ReviewViewController.swift */,
 				7AE64C4F209AB9CD00288B91 /* ViewLayoutConstraint.h */,
@@ -332,6 +338,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3897AF5E209FC34100AF2F68 /* ProfileTableView.swift in Sources */,
 				38467D32209D604400F17EBE /* TimerViewController.swift in Sources */,
 				7AE64C3E209A3F0000288B91 /* MainViewController.swift in Sources */,
 				7AE64C4E209AA9A900288B91 /* DataManager.swift in Sources */,
@@ -344,6 +351,7 @@
 				7AE64C51209AB9CD00288B91 /* ViewLayoutConstraint.m in Sources */,
 				387FF62E209F9BCF00E7B14E /* CreateUserProfile.swift in Sources */,
 				7AE64C42209A419700288B91 /* CafeModel.swift in Sources */,
+				3897AF60209FC3BB00AF2F68 /* ProfileCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

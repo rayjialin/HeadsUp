@@ -50,20 +50,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         ViewLayoutConstraint.viewLayoutConstraint(self.searchingView, defaultView: self.defaultView)
         
         createUserProfile()
-        
-        if let imageUrl = self.dataManager?.closestUser?.profileImageUrl{
-            MainViewController.downloadProfileImage(imageUrl: imageUrl, completion: { (data, response, error) in
-                if let error = error{
-                    print(error)
-                }
-                DispatchQueue.main.async {
-                    self.startProfileImageView.image = UIImage(data: data!)
-                    self.startProfileImageView.contentMode = .scaleAspectFit
-                    self.meetProfileImageView.image = UIImage(data: data!)
-                    self.meetProfileImageView.contentMode = .scaleAspectFit
-                }
-            })
-        }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -295,6 +281,10 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 ViewLayoutConstraint.viewLayoutConstraint(self.talkingView, defaultView: self.defaultView)
                 self.startNameLabel.text = self.dataManager?.closestUser?.name
                 self.displayRandomTopic()
+                
+                if let myCoordinate = self.locationManager.location?.coordinate, let closestUser = self.dataManager?.closestUser {
+                    self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: myCoordinate, closestUser: closestUser)
+                }
             }
         })
     }
@@ -369,17 +359,22 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     
     
     func createUserProfile(){
+        
         if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String {
             if uuid == "5A88BD2B-B18D-46C4-9CBA-628C738ED874" || uuid == "849A01AA-2F57-4438-BAAA-70B7F2FAB975"{
+                self.startProfileImageView.image = #imageLiteral(resourceName: "brian")
+                self.meetProfileImageView.image = #imageLiteral(resourceName: "brian")
                 image = #imageLiteral(resourceName: "brian")
                 name = "Brian"
                 email = "brianLHL@gmail.com"
-                phoneNumber = "123-456-1234"
+                phoneNumber = "778-456-9037"
             }else if uuid == "C86474A7-DE27-4B1B-A5BF-186FDF648622" || uuid == "4CFFA45B-BBB8-4E7C-99D6-FA453669C269"{
+                self.startProfileImageView.image = #imageLiteral(resourceName: "ray")
+                self.meetProfileImageView.image = #imageLiteral(resourceName: "ray")
                 image = #imageLiteral(resourceName: "ray")
                 name = "Ray"
                 email = "rayLHL@gmail.com"
-                phoneNumber = "999-999-9999"
+                phoneNumber = "778-392-1701"
             }
             guard let image = image else {return}
             let imageName = NSUUID().uuidString
