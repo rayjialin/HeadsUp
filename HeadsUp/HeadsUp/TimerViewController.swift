@@ -11,8 +11,9 @@ import UIKit
 
 class TimerViewController: UIViewController {
 
+    @IBOutlet weak var finishButton: UIButton!
     @IBOutlet weak var timerLabel: UILabel!
-    var seconds = 10
+    var seconds = 20
     var timer = Timer()
     
     
@@ -23,6 +24,9 @@ class TimerViewController: UIViewController {
         
     }
     
+    @IBAction func finishButtonTap(_ sender: UIButton) {
+         performSegue(withIdentifier: "reviewSegue", sender: self)
+    }
     
     func runTimer() {
         self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
@@ -31,7 +35,7 @@ class TimerViewController: UIViewController {
     @objc func updateTimer() {
         if seconds < 1 {
             timer.invalidate()
-            performSegue(withIdentifier: "reviewSegue", sender: self)
+           self.finishButton.isHidden = false
         } else {
             seconds -= 1
             timerLabel.text = timeString(time: TimeInterval(seconds))
