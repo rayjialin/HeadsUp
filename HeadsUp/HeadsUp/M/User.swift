@@ -40,7 +40,6 @@ class User: NSObject, MKAnnotation {
                 
             } else {
                 self.geofireRef.child("Users").child(uuid).updateChildValues(["name": self.name])
-                print("false uuid doesnt exist")
             }
         }
         
@@ -49,20 +48,6 @@ class User: NSObject, MKAnnotation {
                 print("An error occured: \(error)")
             } else {
                 print("Saved location successfully!")
-                print("uuid: \(uuid)")
-            }
-        }
-        
-    }
-    
-    func retrieveLocGeoFire(uuid: String) {
-        self.geoFire.getLocationForKey(uuid) { (location, error) in
-            if (error != nil) {
-                print("An error occurred getting the location for \"user-location\": \(error?.localizedDescription)")
-            } else if (location != nil) {
-                print("Location for \"user-location\" is [\(location?.coordinate.latitude), \(location?.coordinate.longitude)]")
-            } else {
-                print("GeoFire does not contain a location for \"user-location\"")
             }
         }
         

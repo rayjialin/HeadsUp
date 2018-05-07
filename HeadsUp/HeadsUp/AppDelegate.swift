@@ -36,7 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         guard let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String else {return}
         
-        print("remove key")
         geoFire.setLocation(CLLocation(latitude: 0, longitude: 0), forKey: uuid)
         //        geofireRef.child("Users").child(uuid).child("agreedToMeet").removeValue()
         //        geofireRef.child("Users").child(uuid).child("agreedToStart").removeValue()

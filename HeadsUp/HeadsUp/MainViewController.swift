@@ -19,11 +19,13 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
     var dataManager: DataManager?
     var currentLocation: CLLocation = CLLocation()
     var user: User?
-    //    var uuid: String?
     var image: UIImage? = UIImage()
     var name = String()
     var email = String()
     var phoneNumber = String()
+    var timer = Timer()
+    var seconds = 5
+
     
     @IBOutlet weak var defaultView: UIView!
     @IBOutlet var searchingView: UIView!
@@ -67,6 +69,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             
             
             self.user = User(name: name, email: email, profileImageUrl: imageUrl, phoneNumber: phoneNumber, coordinate: self.currentLocation.coordinate)
+
+            if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
+                self.user?.saveLocGeoFire(uuid: udid)
+            } else {
+                let udid = UUID().uuidString
+                UserDefaults.standard.set(udid, forKey: "MY_UUID")
+            }
+            
             guard let user = self.user else {return}
             self.dataManager = DataManager(user: user)
         }
@@ -81,16 +91,14 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         if talkingView.isHidden == false{
             setupStartObserver()
         }
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         print("here")
-        if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String, !udid.isEmpty {
+        if let udid = UserDefaults.standard.value(forKey: "MY_UUID") as? String {
+            //self.user?.saveLocGeoFire(uuid: udid)
             Database.database().reference().child("User_Location").child(udid).child("l").updateChildValues(["0" : manager.location?.coordinate.latitude as Any, "1" : manager.location?.coordinate.longitude as Any])
-            self.user?.saveLocGeoFire(uuid: udid)
-            
             // RETRIEVE USERS PROFILE DATA
             self.user?.geofireRef.child("Users").observeSingleEvent(of: .value, with: { (snapshot) in
                 //print(snapshot)
@@ -115,7 +123,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                         let nearbyUser = User(name: name, email: email, profileImageUrl: profileImage, phoneNumber: phoneNUmber, coordinate: location.coordinate)
                         //                        let nearbyUser = User(name: name, email: nil, profileImageUrl: nil, phoneNumber: nil, coordinate: location.coordinate)
                         self.dataManager?.addNearbyUser(newUser: nearbyUser)
-                        
+                        if self.dataManager?.closestUser == nil {
                         self.dataManager?.findClosestUser(completion: { (closestUser) in
                             self.user?.matchedUserUUID = key // add matched user UUID to check if matched user pressed button agreed to meet
                             self.searchingView.removeFromSuperview()
@@ -135,22 +143,30 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             self.placeAnnotations()
                         })
                     }
+                    }
                 })
                 
                 circleQuery.observe(.keyMoved, with: { (key: String!, location: CLLocation!) in
                     // print("Key '\(key)' entered the search area and is at location '\(location)'")
+
                     let geoFire = GeoFire(firebaseRef: Database.database().reference().child("User_Location"))
                     if self.user?.matchedUserUUID == key {
                         geoFire.getLocationForKey(key) { (geoLocation, error) in
-                            guard let closestUser = self.dataManager?.closestUser else {return}
                             if (error != nil) {
                                 print("An error occurred getting the location for \"user-location\": \(error?.localizedDescription)")
                             }
-                            if let geoLocation = location {
+                            if let geoLocation = geoLocation {
+                                guard let closestUser = self.dataManager?.closestUser else {return}
                                 self.mainMapView.removeAnnotation(closestUser)
-                                closestUser.coordinate = geoLocation.coordinate
-                                self.mainMapView.addAnnotation(closestUser)
-                                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                                let updateClosestUserAnnotation = closestUser
+                                updateClosestUserAnnotation.coordinate = geoLocation.coordinate
+                                //if self.dataManager?.saveClosestUserFirstLocation?.latitude != geoLocation.coordinate.latitude &&
+                                //self.dataManager?.saveClosestUserFirstLocation?.longitude != geoLocation.coordinate.longitude {
+                                self.mainMapView.addAnnotation(updateClosestUserAnnotation)
+                                //                                print("++++++\(self.mainMapView.annotations)--++++--")
+                                //                                    print("++++++\(updateClosestUserAnnotation.coordinate)--++++--")
+                                //}
+                                //self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
                                 
                                 self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: managerLocation, closestUser: closestUser)
                                 
@@ -159,28 +175,25 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                             }
                         }
                     }
-                    
                 })
                 circleQuery.observeReady({
                     print("All initial data has been loaded and events have been fired!")
                 })
             })
             
-        } else {
-            let udid = UUID().uuidString
-            UserDefaults.standard.set(udid, forKey: "MY_UUID")
         }
-        
     }
     
     func placeAnnotations() -> Void {
-        self.dataManager?.dataAnnotations(completion: { (annotationArray) in
-            if self.mainMapView.annotations.count < 4 {
+        if self.mainMapView.annotations.count < 4 {
+            self.dataManager?.dataAnnotations(completion: { (annotationArray) in
+                print("ADDING ANNOTATIONARRAY USER")
                 self.mainMapView.addAnnotations(annotationArray)
-            }
-            print("-----\(self.mainMapView.annotations)")
-            self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
-        })
+                self.mainMapView.showAnnotations(self.mainMapView.annotations, animated: true)
+                
+                print("-----\(self.mainMapView.annotations)")
+            })
+        }
         
         /*
          * Enables all annotations to fit on the screen.
@@ -214,9 +227,9 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             annotationView?.annotation = annotation
         }
         
-        if let userAnnotation = annotation as? User, self.dataManager?.closestUser == annotation as? User {
+        if self.dataManager?.closestUser == annotation as? User {
             //print("ANNOTATIONVIEW CHANGED TO USERANNOTATION")
-            //print(annotation.coordinate)
+            print(annotation.coordinate)
             annotationView?.image = UIImage(named: "userAnnotation")
         }
         if let midpointAnnotation = annotation as? LocateCafe {
@@ -232,7 +245,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         return annotationView
     }
     
-    
+    // When I press the MEET Button
     @IBAction func startMeeting(_ sender: UIButton) {
         // add property to user on firebase to set "agreeToMeet" condition to True
         if let uuid = UserDefaults.standard.value(forKey: "MY_UUID") as? String{
@@ -245,6 +258,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                     self.meetButton.isEnabled = false
                     self.user?.isObserving = true
                     
+                    
+                    // MatchedUser also presses the MEET button
                     if let matchedUserUUID = self.user?.matchedUserUUID{
                         if snapshot.childSnapshot(forPath: matchedUserUUID).hasChild("agreedToMeet"){
                             let value = snapshot.childSnapshot(forPath: matchedUserUUID).value as? NSDictionary
@@ -266,8 +281,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
         }
     }
     
-    
-    
     func setupMeetObserver(){
         
         self.user?.geofireRef.child("Users").observe(.value, with: { (snapshot) in
@@ -275,6 +288,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             
             guard let agreedToMeet = snapshot.childSnapshot(forPath: matchedUser).childSnapshot(forPath: "agreedToMeet").value as? Bool else {return}
             
+            // When matchedUser agrees to MEET *FIRST* and I agree as well
             if agreedToMeet == true && self.user?.isObserving == true{
                 self.profileView.removeFromSuperview()
                 self.view.addSubview(self.talkingView)
@@ -284,6 +298,15 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 
                 if let myCoordinate = self.locationManager.location?.coordinate, let closestUser = self.dataManager?.closestUser {
                     self.updateDistanceLabels(label: self.startDistanceLabel, managerLocation: myCoordinate, closestUser: closestUser)
+                }
+            }
+            
+            // When Matched User DOESNT agree then reset the closestUser & button
+            if agreedToMeet == false && self.user?.isObserving == true {
+                if let closestUser = self.dataManager?.closestUser {
+                    if let index = self.dataManager?.usersArray.index(of: closestUser) {
+                        self.dataManager?.usersArray.remove(at: index)
+                    }
                 }
             }
         })
@@ -327,7 +350,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                                     self.performSegue(withIdentifier: "timerSegue", sender: self)
                                 }
                             }
-                            
                         }
                     }
                 }
@@ -342,7 +364,7 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
             label.text =  String(format: "%.0f m", managerLocation.distance(from: closestUser.coordinate))
         }
     }
-    
+
     func displayRandomTopic(){
         let randomTopicNumber = String(arc4random_uniform(5))
         self.user?.geofireRef.child("Topics").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -353,8 +375,25 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, MKMapView
                 }
             }
         })
+    }
         
-        
+
+    func runTimer() {
+        self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateTimer() {
+        if seconds < 1 {
+            timer.invalidate()
+        } else {
+            seconds -= 1
+            meetCounter.text = timeString(time: TimeInterval(seconds))
+        }
+    }
+    func timeString(time:TimeInterval) -> String {
+        let minutes = Int(time) / 60 % 60
+        let seconds = Int(time) % 60
+        return String(format:"%01i:%02i", minutes, seconds)
     }
     
     
